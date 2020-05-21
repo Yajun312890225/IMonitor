@@ -1,0 +1,154 @@
+definitions:
+  response.Page:
+    properties:
+      count:
+        type: integer
+      list:
+        type: object
+      pageIndex:
+        type: integer
+      pageSize:
+        type: integer
+    type: object
+  response.PageResponse:
+    properties:
+      code:
+        example: 200
+        type: integer
+      data:
+        $ref: '#/definitions/response.Page'
+        type: object
+      msg:
+        type: string
+    type: object
+  response.Res:
+    properties:
+      code:
+        type: integer
+      data:
+        type: object
+      error:
+        type: string
+      msg:
+        type: string
+    type: object
+info:
+  contact: {}
+  license: {}
+paths:
+  /api/v1/role/{roleId}:
+    get:
+      description: 获取JSON
+      parameters:
+      - description: roleId
+        in: path
+        name: roleId
+        type: string
+      responses:
+        "200":
+          description: '{"code": -1, "message": "抱歉未找到相关信息"}'
+          schema:
+            type: string
+      security:
+      - "": []
+      summary: 获取Role数据
+      tags:
+      - Role
+  /api/v1/rolelist:
+    get:
+      description: Get JSON
+      parameters:
+      - description: roleName
+        in: query
+        name: roleName
+        type: string
+      - description: status
+        in: query
+        name: status
+        type: string
+      - description: rolekey
+        in: query
+        name: rolekey
+        type: string
+      - description: 页条数
+        in: query
+        name: pageSize
+        type: integer
+      - description: 页码
+        in: query
+        name: pageIndex
+        type: integer
+      responses:
+        "200":
+          description: '{"code": 200, "data": [...]}'
+          schema:
+            $ref: '#/definitions/response.PageResponse'
+      security:
+      - "": []
+      summary: 角色列表数据
+      tags:
+      - Role
+  /login:
+    post:
+      parameters:
+      - description: admin
+        in: formData
+        name: username
+        required: true
+        type: string
+      - description: admin@123
+        in: formData
+        name: password
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Res'
+      summary: 用户登录
+      tags:
+      - user
+  /query:
+    post:
+      description: 查询登录状态，并返回user
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Res'
+      summary: 查询登录状态，并返回user
+      tags:
+      - user
+  /user/add:
+    post:
+      parameters:
+      - description: dahuang
+        in: formData
+        name: username
+        required: true
+        type: string
+      - description: 大黄
+        in: formData
+        name: nickname
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Res'
+      summary: 管理员添加用户
+      tags:
+      - user
+  /user/logout:
+    post:
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Res'
+      summary: 注销登录
+      tags:
+      - user
+swagger: "2.0"
