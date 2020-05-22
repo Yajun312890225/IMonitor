@@ -31,8 +31,11 @@ func InitRouter() *gin.Engine {
 	{
 		v1.POST("query", handler.Query)
 
+		// v1.Get("/menulist",)
+
 		v1.GET("/rolelist", handler.GetRoleList)
 		v1.GET("/role/:roleId", handler.GetRole)
+		v1.GET("/menulist", handler.GetMenuList)
 
 		// // 用户登录
 

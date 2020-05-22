@@ -5,6 +5,48 @@
         "license": {}
     },
     "paths": {
+        "/api/v1/menulist": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "获取JSON",
+                "tags": [
+                    "Menu"
+                ],
+                "summary": "Menu列表数据",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "menuName",
+                        "name": "menuName",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "visible",
+                        "name": "visible",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "title",
+                        "name": "title",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"code\": -1, \"message\": \"抱歉未找到相关信息\"}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/role/{roleId}": {
             "get": {
                 "security": [

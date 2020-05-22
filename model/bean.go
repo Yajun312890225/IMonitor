@@ -11,17 +11,22 @@ type Model struct {
 
 // User 用户
 type User struct {
-	UserId   int    `gorm:"primary_key;AUTO_INCREMENT"  json:"userId"`
-	Nickname string `gorm:"type:varchar(128)" json:"nickname"`
-	Phone    string `gorm:"type:varchar(11)" json:"phone"`
-	RoleId   int    `gorm:"type:int(11)" json:"roleId"`
-	Username string `gorm:"type:varchar(64)" json:"username"`
-	Password string `gorm:"type:varchar(128)" json:"password"`
-	Salt     string `gorm:"type:varchar(255)" json:"salt"`
-	Avatar   string `gorm:"type:varchar(255)" json:"avatar"`
-	Sex      string `gorm:"type:varchar(255)" json:"sex"`
-	Email    string `gorm:"type:varchar(128)" json:"email"`
-	Status   string `gorm:"type:enum('admin', 'normal');default:'normal'" json:"status"`
+	UserId    int    `gorm:"primary_key;AUTO_INCREMENT"  json:"userId"`
+	Nickname  string `gorm:"type:varchar(128)" json:"nickname"`
+	Phone     string `gorm:"type:varchar(11)" json:"phone"`
+	RoleId    int    `gorm:"type:int(11)" json:"roleId"`
+	Username  string `gorm:"type:varchar(64)" json:"username"`
+	Password  string `gorm:"type:varchar(128)" json:"password"`
+	Salt      string `gorm:"type:varchar(255)" json:"salt"`
+	Avatar    string `gorm:"type:varchar(255)" json:"avatar"`
+	Sex       string `gorm:"type:varchar(255)" json:"sex"`
+	Email     string `gorm:"type:varchar(128)" json:"email"`
+	Status    string `gorm:"type:enum('admin', 'normal');default:'normal'" json:"status"`
+	CreateBy  string `gorm:"type:varchar(128)" json:"createBy"`
+	UpdateBy  string `gorm:"type:varchar(128)" json:"updateBy"`
+	Remark    string `gorm:"type:varchar(255)" json:"remark"`
+	DataScope string `gorm:"-" json:"dataScope"`
+	Params    string `gorm:"-" json:"params"`
 	Model
 }
 
@@ -33,7 +38,10 @@ type Role struct {
 	RoleKey   string `json:"roleKey" gorm:"type:varchar(128);"`
 	RoleSort  int    `json:"roleSort" gorm:"type:int(4);"`
 	DataScope string `json:"dataScope" gorm:"type:varchar(128);"`
+	CreateBy  string `json:"createBy" gorm:"type:varchar(128);"`
+	UpdateBy  string `json:"updateBy" gorm:"type:varchar(128);"`
 	Remark    string `json:"remark" gorm:"type:varchar(255);"`
+	Params    string `json:"params" gorm:"-"`
 	MenuIds   []int  `json:"menuIds" gorm:"-"`
 	Model
 }
@@ -54,7 +62,13 @@ type Menu struct {
 	Component  string `json:"component" gorm:"type:varchar(255);"`
 	Sort       int    `json:"sort" gorm:"type:int(4);"`
 	Visible    string `json:"visible" gorm:"type:char(1);"`
+	CreateBy   string `json:"createBy" gorm:"type:varchar(128);"`
+	UpdateBy   string `json:"updateBy" gorm:"type:varchar(128);"`
 	IsFrame    string `json:"isFrame" gorm:"type:int(1);DEFAULT:0;"`
+	Params     string `json:"params" gorm:"-"`
+	RoleId     int    `gorm:"-"`
+	Children   []Menu `json:"children" gorm:"-"`
+	IsSelect   bool   `json:"is_select" gorm:"-"`
 	Model
 }
 

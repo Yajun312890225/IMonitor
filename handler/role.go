@@ -2,13 +2,11 @@ package handler
 
 import (
 	"iMonitor/dao"
-	"iMonitor/model"
 	"iMonitor/response"
 	"net/http"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
-	"github.com/qinyuanmao/go-utils/logutl"
 	"github.com/sirupsen/logrus"
 )
 
@@ -25,7 +23,6 @@ import (
 // @Router /api/v1/rolelist [get]
 // @Security
 func GetRoleList(c *gin.Context) {
-	var data model.Role
 	var pageSize = 10
 	var pageIndex = 1
 
@@ -36,13 +33,10 @@ func GetRoleList(c *gin.Context) {
 	if index := c.Request.FormValue("pageIndex"); index != "" {
 		pageIndex, _ = strconv.Atoi(index)
 	}
-
-	data.RoleKey = c.Request.FormValue("roleKey")
-	data.RoleName = c.Request.FormValue("roleName")
-	data.Status = c.Request.FormValue("status")
 	result, count, err := dao.Role().GetPage(pageSize, pageIndex)
 	if err != nil {
-		logutl.Debug(err)
+		logrus.Debug(err)
+
 	}
 	c.JSON(http.StatusOK, response.PageResponse{
 		Code: response.CodeSuccess,

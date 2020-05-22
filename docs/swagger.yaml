@@ -36,6 +36,32 @@ info:
   contact: {}
   license: {}
 paths:
+  /api/v1/menulist:
+    get:
+      description: 获取JSON
+      parameters:
+      - description: menuName
+        in: query
+        name: menuName
+        type: string
+      - description: visible
+        in: query
+        name: visible
+        type: string
+      - description: title
+        in: query
+        name: title
+        type: string
+      responses:
+        "200":
+          description: '{"code": -1, "message": "抱歉未找到相关信息"}'
+          schema:
+            type: string
+      security:
+      - Bearer: []
+      summary: Menu列表数据
+      tags:
+      - Menu
   /api/v1/role/{roleId}:
     get:
       description: 获取JSON

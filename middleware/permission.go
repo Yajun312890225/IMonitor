@@ -4,7 +4,7 @@ import (
 	"net/http"
 
 	"github.com/gin-contrib/sessions"
-	"github.com/qinyuanmao/go-utils/logutl"
+	"github.com/sirupsen/logrus"
 
 	"iMonitor/model"
 	"iMonitor/pkg/casbin"
@@ -18,7 +18,7 @@ func AuthCheckRole() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		e, err := casbin.Casbin()
 		if err != nil {
-			logutl.Debug(err)
+			logrus.Debug(err)
 		}
 
 		//获取请求的URI
