@@ -36,6 +36,67 @@ info:
   contact: {}
   license: {}
 paths:
+  /api/v1/menu:
+    post:
+      consumes:
+      - application/x-www-form-urlencoded
+      description: 获取JSON
+      parameters:
+      - description: menuName
+        in: formData
+        name: menuName
+        required: true
+        type: string
+      - description: title
+        in: formData
+        name: title
+        required: true
+        type: string
+      - description: menuType
+        in: formData
+        name: menuType
+        required: true
+        type: string
+      - description: path
+        in: formData
+        name: path
+        required: true
+        type: string
+      - description: permission
+        in: formData
+        name: permission
+        required: true
+        type: string
+      - description: action
+        in: formData
+        name: action
+        type: string
+      - description: parentId
+        in: formData
+        name: parentId
+        type: string
+      - description: isFrame
+        in: formData
+        name: isFrame
+        type: string
+      - description: sort
+        in: formData
+        name: sort
+        type: string
+      - description: visible
+        in: formData
+        name: visible
+        type: string
+      responses:
+        "200":
+          description: '{"code": -1, "message": "添加失败"}'
+          schema:
+            type: string
+      security:
+      - Bearer: []
+      summary: 创建菜单
+      tags:
+      - Menu
   /api/v1/menulist:
     get:
       description: 获取JSON

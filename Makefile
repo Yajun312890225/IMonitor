@@ -1,6 +1,6 @@
 .PHONY: start build
 
-all: run
+all: srun
 
 build:
 	GOOS=linux GOARCH=amd64 go build ./main.go

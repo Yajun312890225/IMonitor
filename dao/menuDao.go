@@ -1,7 +1,9 @@
 package dao
 
 import (
+	"errors"
 	"iMonitor/model"
+	"strconv"
 )
 
 // MenuDao 对menu模型进行增删查改的单例工具
@@ -94,5 +96,37 @@ func (m *MenuDao) GetPage() (menus []MenuDao, err error) {
 	if err = table.Order("sort").Find(&menus).Error; err != nil {
 		return
 	}
+	return
+}
+
+// Create 创建菜单
+func (m *MenuDao) Create() (id int, err error) {
+	result := model.DB.Table("menu").Create(&m)
+	if result.Error != nil {
+		err = result.Error
+		return
+	}
+	err = InitPaths(m)
+	if err != nil {
+		return
+	}
+	id = m.MenuId
+	return
+}
+
+// InitPaths 初始化路径
+func InitPaths(menu *MenuDao) (err error) {
+	parentMenu := MenuDao{}
+	if int(menu.ParentId) != 0 {
+		model.DB.Table("menu").Where("menu_id = ?", menu.ParentId).First(parentMenu)
+		if parentMenu.Paths == "" {
+			err = errors.New("父级paths异常，请尝试对当前节点父级菜单进行更新操作！")
+			return
+		}
+		menu.Paths = parentMenu.Paths + "/" + strconv.Itoa(menu.MenuId)
+	} else {
+		menu.Paths = "/0/" + strconv.Itoa(menu.MenuId)
+	}
+	model.DB.Table("menu").Where("menu_id = ?", menu.MenuId).Update("paths", menu.Paths)
 	return
 }
