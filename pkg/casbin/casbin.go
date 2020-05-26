@@ -9,15 +9,22 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-//Casbin 权限控制
-func Casbin() (*casbin.Enforcer, error) {
-	CasbinAdapter := NewAdapter("mysql", os.Getenv("MYSQL_URL"))
-	e := casbin.NewEnforcer("./conf/rbac_model.conf", CasbinAdapter)
+type Casbin struct {
+	CasbinAdapter *Adapter
+	Enforce       *casbin.Enforcer
+}
 
-	if err := e.LoadPolicy(); err == nil {
-		return e, err
-	} else {
-		logrus.Debug("casbin rbac_model or policy init error, message: %v", err)
-		return nil, err
+var mycasbin *Casbin
+
+// GetCasbin 获取Casbin对象
+func GetCasbin() *Casbin {
+	if mycasbin == nil {
+		mycasbin = new(Casbin)
+		mycasbin.CasbinAdapter = NewAdapter("mysql", os.Getenv("MYSQL_URL"))
+		mycasbin.Enforce = casbin.NewEnforcer("./conf/rbac_model.conf", mycasbin.CasbinAdapter)
+		if err := mycasbin.Enforce.LoadPolicy(); err != nil {
+			logrus.Debug("casbin rbac_model or policy init error, message: %v", err)
+		}
 	}
+	return mycasbin
 }

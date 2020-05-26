@@ -33,9 +33,14 @@ func InitRouter() *gin.Engine {
 
 		v1.GET("/rolelist", handler.GetRoleList)
 		v1.GET("/role/:roleId", handler.GetRole)
+		v1.POST("/role", handler.InsertRole)
+		v1.PUT("/role", handler.UpdateRole)
+		// v1.DELETE("/role/:roleId", handler.DeleteRole)
 
 		v1.GET("/menulist", handler.GetMenuList)
 		v1.POST("/menu", handler.InsertMenu)
+		v1.PUT("/menu", handler.UpdateMenu)
+		v1.DELETE("/menu/:id", handler.DeleteMenu)
 
 		// // 用户登录
 

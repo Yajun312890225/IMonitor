@@ -45,6 +45,17 @@ const (
 
 	//CodeAccessionNotPermission 没有权限
 	CodeAccessionNotPermission = 40004
+
+	//CodeMenuCreatErr 创建菜单错误
+	CodeMenuCreateErr = 40005
+
+	//CodeMenuUpdateErr 更新菜单错误
+	CodeMenuUpdateErr = 40006
+
+	CodeRoleCreateErr     = 40007
+	CodeRoleMenuCreateErr = 40008
+	CodeRoleUpdateErr     = 40009
+	CodeRoleMenuUpdateErr = 40010
 )
 
 // CodeErrMsg 服务器错误码对应错误信息
@@ -57,4 +68,10 @@ var CodeErrMsg = map[int]string{
 	CodeUserNotFound:           "用户不存在",
 	CodePasswordErr:            "密码错误",
 	CodeAccessionNotPermission: "没有权限",
+	CodeMenuCreateErr:          "创建菜单错误",
+	CodeMenuUpdateErr:          "更新菜单错误",
+	CodeRoleCreateErr:          "创建角色错误",
+	CodeRoleMenuCreateErr:      "创建角色菜单错误",
+	CodeRoleUpdateErr:          "更新角色错误",
+	CodeRoleMenuUpdateErr:      "更新角色菜单错误",
 }

@@ -1,4 +1,92 @@
 definitions:
+  model.Menu:
+    properties:
+      action:
+        type: string
+      breadcrumb:
+        type: string
+      children:
+        items:
+          $ref: '#/definitions/model.Menu'
+        type: array
+      component:
+        type: string
+      createBy:
+        type: string
+      createdAt:
+        type: string
+      deletedAt:
+        type: string
+      icon:
+        type: string
+      is_select:
+        type: boolean
+      isFrame:
+        type: string
+      menuId:
+        type: integer
+      menuName:
+        type: string
+      menuType:
+        type: string
+      noCache:
+        type: boolean
+      params:
+        type: string
+      parentId:
+        type: integer
+      path:
+        type: string
+      paths:
+        type: string
+      permission:
+        type: string
+      roleId:
+        type: integer
+      sort:
+        type: integer
+      title:
+        type: string
+      updateBy:
+        type: string
+      updatedAt:
+        type: string
+      visible:
+        type: string
+    type: object
+  model.Role:
+    properties:
+      createBy:
+        type: string
+      createdAt:
+        type: string
+      dataScope:
+        type: string
+      deletedAt:
+        type: string
+      menuIds:
+        items:
+          type: integer
+        type: array
+      params:
+        type: string
+      remark:
+        type: string
+      roleId:
+        type: integer
+      roleKey:
+        type: string
+      roleName:
+        type: string
+      roleSort:
+        type: integer
+      status:
+        type: integer
+      updateBy:
+        type: string
+      updatedAt:
+        type: string
+    type: object
   response.Page:
     properties:
       count:
@@ -39,62 +127,57 @@ paths:
   /api/v1/menu:
     post:
       consumes:
-      - application/x-www-form-urlencoded
+      - application/json
       description: 获取JSON
       parameters:
-      - description: menuName
-        in: formData
-        name: menuName
+      - description: data
+        in: body
+        name: data
         required: true
-        type: string
-      - description: title
-        in: formData
-        name: title
-        required: true
-        type: string
-      - description: menuType
-        in: formData
-        name: menuType
-        required: true
-        type: string
-      - description: path
-        in: formData
-        name: path
-        required: true
-        type: string
-      - description: permission
-        in: formData
-        name: permission
-        required: true
-        type: string
-      - description: action
-        in: formData
-        name: action
-        type: string
-      - description: parentId
-        in: formData
-        name: parentId
-        type: string
-      - description: isFrame
-        in: formData
-        name: isFrame
-        type: string
-      - description: sort
-        in: formData
-        name: sort
-        type: string
-      - description: visible
-        in: formData
-        name: visible
-        type: string
+        schema:
+          $ref: '#/definitions/model.Menu'
       responses:
         "200":
           description: '{"code": -1, "message": "添加失败"}'
           schema:
             type: string
-      security:
-      - Bearer: []
       summary: 创建菜单
+      tags:
+      - Menu
+    put:
+      consumes:
+      - application/json
+      description: 获取JSON
+      parameters:
+      - description: body
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/model.Menu'
+      responses:
+        "200":
+          description: '{"code": -1, "message": "修改失败"}'
+          schema:
+            type: string
+      summary: 修改菜单
+      tags:
+      - Menu
+  /api/v1/menu/{id}:
+    delete:
+      description: 删除数据
+      parameters:
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: '{"code": -1, "message": "删除失败"}'
+          schema:
+            type: string
+      summary: 删除菜单
       tags:
       - Menu
   /api/v1/menulist:
@@ -118,11 +201,48 @@ paths:
           description: '{"code": -1, "message": "抱歉未找到相关信息"}'
           schema:
             type: string
-      security:
-      - Bearer: []
       summary: Menu列表数据
       tags:
       - Menu
+  /api/v1/role:
+    post:
+      consumes:
+      - application/json
+      description: 获取JSON
+      parameters:
+      - description: data
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/model.Role'
+      responses:
+        "200":
+          description: '{"code": -1, "message": "添加失败"}'
+          schema:
+            type: string
+      summary: 创建角色
+      tags:
+      - Role
+    put:
+      consumes:
+      - application/json
+      description: 获取JSON
+      parameters:
+      - description: body
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/model.Role'
+      responses:
+        "200":
+          description: '{"code": -1, "message": "修改失败"}'
+          schema:
+            type: string
+      summary: 修改用户角色
+      tags:
+      - Role
   /api/v1/role/{roleId}:
     get:
       description: 获取JSON
@@ -136,8 +256,6 @@ paths:
           description: '{"code": -1, "message": "抱歉未找到相关信息"}'
           schema:
             type: string
-      security:
-      - "": []
       summary: 获取Role数据
       tags:
       - Role
@@ -170,8 +288,6 @@ paths:
           description: '{"code": 200, "data": [...]}'
           schema:
             $ref: '#/definitions/response.PageResponse'
-      security:
-      - "": []
       summary: 角色列表数据
       tags:
       - Role

@@ -101,6 +101,7 @@ func (m *MenuDao) GetPage() (menus []MenuDao, err error) {
 
 // Create 创建菜单
 func (m *MenuDao) Create() (id int, err error) {
+	m.MenuId = 0
 	result := model.DB.Table("menu").Create(&m)
 	if result.Error != nil {
 		err = result.Error
@@ -118,7 +119,7 @@ func (m *MenuDao) Create() (id int, err error) {
 func InitPaths(menu *MenuDao) (err error) {
 	parentMenu := MenuDao{}
 	if int(menu.ParentId) != 0 {
-		model.DB.Table("menu").Where("menu_id = ?", menu.ParentId).First(parentMenu)
+		model.DB.Table("menu").Where("menu_id = ?", menu.ParentId).First(&parentMenu)
 		if parentMenu.Paths == "" {
 			err = errors.New("父级paths异常，请尝试对当前节点父级菜单进行更新操作！")
 			return
@@ -128,5 +129,30 @@ func InitPaths(menu *MenuDao) (err error) {
 		menu.Paths = "/0/" + strconv.Itoa(menu.MenuId)
 	}
 	model.DB.Table("menu").Where("menu_id = ?", menu.MenuId).Update("paths", menu.Paths)
+	return
+}
+
+// Update 更新菜单
+func (m *MenuDao) Update(id int) (update MenuDao, err error) {
+	if err = model.DB.Table("menu").First(&update, id).Error; err != nil {
+		return
+	}
+	if err = model.DB.Table("menu").Model(&update).Updates(&m).Error; err != nil {
+		return
+	}
+	err = InitPaths(m)
+	if err != nil {
+		return
+	}
+	return
+}
+
+// Delete 删除菜单
+func (m *MenuDao) Delete(id int) (success bool, err error) {
+	if err = model.DB.Table("menu").Where("menu_id = ?", id).Delete(&MenuDao{}).Error; err != nil {
+		success = false
+		return
+	}
+	success = true
 	return
 }

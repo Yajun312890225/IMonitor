@@ -34,7 +34,7 @@ type User struct {
 type Role struct {
 	RoleId    int    `json:"roleId" gorm:"primary_key;AUTO_INCREMENT"`
 	RoleName  string `json:"roleName" gorm:"type:varchar(128);"`
-	Status    string `json:"status" gorm:"type:int(1);"`
+	Status    int    `json:"status" gorm:"type:int(1);"`
 	RoleKey   string `json:"roleKey" gorm:"type:varchar(128);"`
 	RoleSort  int    `json:"roleSort" gorm:"type:int(4);"`
 	DataScope string `json:"dataScope" gorm:"type:varchar(128);"`
@@ -94,4 +94,14 @@ type Server struct {
 type ServerCollaborator struct {
 	Serverid uint
 	Userid   uint
+}
+//CasbinRule 权限规则
+type CasbinRule struct {
+	PType string `json:"p_type" gorm:"type:varchar(100);"`
+	V0    string `json:"v0" gorm:"type:varchar(100);"`
+	V1    string `json:"v1" gorm:"type:varchar(100);"`
+	V2    string `json:"v2" gorm:"type:varchar(100);"`
+	V3    string `json:"v3" gorm:"type:varchar(100);"`
+	V4    string `json:"v4" gorm:"type:varchar(100);"`
+	V5    string `json:"v5" gorm:"type:varchar(100);"`
 }

@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 )
@@ -21,7 +22,6 @@ import (
 // @Param pageIndex query int false "页码"
 // @Success 200 {object} response.PageResponse "{"code": 200, "data": [...]}"
 // @Router /api/v1/rolelist [get]
-// @Security
 func GetRoleList(c *gin.Context) {
 	var pageSize = 10
 	var pageIndex = 1
@@ -58,7 +58,6 @@ func GetRoleList(c *gin.Context) {
 // @Success 200 {string} string "{"code": 200, "data": [...]}"
 // @Success 200 {string} string "{"code": -1, "message": "抱歉未找到相关信息"}"
 // @Router /api/v1/role/{roleId} [get]
-// @Security
 func GetRole(c *gin.Context) {
 	role := dao.Role()
 	role.RoleId, _ = strconv.Atoi(c.Param("roleId"))
@@ -77,4 +76,122 @@ func GetRole(c *gin.Context) {
 		Msg:  "",
 	})
 
+}
+
+// InsertRole 创建角色
+// @Summary 创建角色
+// @Description 获取JSON
+// @Tags Role
+// @Accept  application/json
+// @Product application/json
+// @Param data body model.Role true "data"
+// @Success 200 {string} string	"{"code": 200, "message": "添加成功"}"
+// @Success 200 {string} string	"{"code": -1, "message": "添加失败"}"
+// @Router /api/v1/role [post]
+func InsertRole(c *gin.Context) {
+
+	data := dao.Role()
+	err := c.ShouldBind(&data)
+	if err != nil {
+		logrus.Info(err)
+		c.JSON(http.StatusOK, response.Res{
+			Code:  response.CodeParamErr,
+			Msg:   response.CodeErrMsg[response.CodeParamErr],
+			Error: err.Error(),
+		})
+		return
+	}
+	session := sessions.Default(c)
+	data.CreateBy = strconv.Itoa(session.Get("userid").(int))
+
+	result, err := data.Insert()
+	if err != nil {
+		logrus.Info(err)
+		c.JSON(http.StatusOK, response.Res{
+			Code:  response.CodeRoleCreateErr,
+			Msg:   response.CodeErrMsg[response.CodeRoleCreateErr],
+			Error: err.Error(),
+		})
+		return
+
+	}
+	data.RoleId = result
+	roleMenu := dao.RoleMenu()
+	err = roleMenu.Insert(result, data.MenuIds)
+	if err != nil {
+		c.JSON(http.StatusOK, response.Res{
+			Code:  response.CodeRoleMenuCreateErr,
+			Msg:   response.CodeErrMsg[response.CodeRoleMenuCreateErr],
+			Error: err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, response.Res{
+		Code: response.CodeSuccess,
+		Data: data,
+		Msg:  "",
+	})
+}
+
+// UpdateRole 修改用户角色
+// @Summary 修改用户角色
+// @Description 获取JSON
+// @Tags Role
+// @Accept  application/json
+// @Product application/json
+// @Param data body model.Role true "body"
+// @Success 200 {string} string	"{"code": 200, "message": "修改成功"}"
+// @Success 200 {string} string	"{"code": -1, "message": "修改失败"}"
+// @Router /api/v1/role [put]
+func UpdateRole(c *gin.Context) {
+	data := dao.Role()
+	err := c.ShouldBind(&data)
+	if err != nil {
+		logrus.Info(err)
+		c.JSON(http.StatusOK, response.Res{
+			Code:  response.CodeParamErr,
+			Msg:   response.CodeErrMsg[response.CodeParamErr],
+			Error: err.Error(),
+		})
+		return
+	}
+	session := sessions.Default(c)
+	data.CreateBy = strconv.Itoa(session.Get("userid").(int))
+
+	result, err := data.Update(data.RoleId)
+	if err != nil {
+		logrus.Info(err)
+		c.JSON(http.StatusOK, response.Res{
+			Code:  response.CodeRoleUpdateErr,
+			Msg:   response.CodeErrMsg[response.CodeRoleUpdateErr],
+			Error: err.Error(),
+		})
+		return
+
+	}
+	roleMenu := dao.RoleMenu()
+	err = roleMenu.DeleteRoleMenu(data.RoleId)
+	if err != nil {
+		c.JSON(http.StatusOK, response.Res{
+			Code:  response.CodeRoleMenuUpdateErr,
+			Msg:   response.CodeErrMsg[response.CodeRoleMenuUpdateErr],
+			Error: err.Error(),
+		})
+		return
+	}
+	err = roleMenu.Insert(data.RoleId, data.MenuIds)
+	if err != nil {
+		c.JSON(http.StatusOK, response.Res{
+			Code:  response.CodeRoleMenuUpdateErr,
+			Msg:   response.CodeErrMsg[response.CodeRoleMenuUpdateErr],
+			Error: err.Error(),
+		})
+		return
+	}
+	c.JSON(http.StatusOK, response.Res{
+		Code: response.CodeSuccess,
+		Data: result,
+		Msg:  "",
+	})
 }
