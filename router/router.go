@@ -7,8 +7,9 @@ import (
 	"iMonitor/middleware"
 
 	"github.com/gin-gonic/gin"
-	swaggerFiles "github.com/swaggo/files"
+	// swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
+	"github.com/swaggo/gin-swagger/swaggerFiles"
 )
 
 // InitRouter 配置路由
@@ -23,12 +24,12 @@ func InitRouter() *gin.Engine {
 	// 配置swagger
 	swagURL := ginSwagger.URL(os.Getenv("SWAGGER_URL"))
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler, swagURL))
-	r.POST("/login", handler.Login)
 
 	// 可自由配置统一入口，比如/api/v1 版本信息
 	v1 := r.Group("/api/v1")
-	v1.Use(middleware.AuthCheckRole())
 	{
+		v1.POST("/login", handler.Login)
+		v1.Use(middleware.AuthCheckRole())
 		v1.POST("query", handler.Query)
 
 		v1.GET("/rolelist", handler.GetRoleList)
@@ -38,6 +39,7 @@ func InitRouter() *gin.Engine {
 		v1.DELETE("/role/:roleId", handler.DeleteRole)
 
 		v1.GET("/menulist", handler.GetMenuList)
+		v1.GET("/menu/:menuId", handler.GetMenu)
 		v1.POST("/menu", handler.InsertMenu)
 		v1.PUT("/menu", handler.UpdateMenu)
 		v1.DELETE("/menu/:id", handler.DeleteMenu)

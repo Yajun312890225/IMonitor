@@ -20,8 +20,8 @@ func User() *UserDao {
 
 // ReqLoginUser 用户登录用来解析账号密码
 type ReqLoginUser struct {
-	Username string `form:"username" json:"username" xml:"username" binding:"required"`
-	Password string `form:"password" json:"password" xml:"password" binding:"required"`
+	Username string `form:"username" json:"username" xml:"username" binding:"required" example:"admin"`
+	Password string `form:"password" json:"password" xml:"password" binding:"required" example:"123"`
 }
 
 // ReqAddUser 管理员新增用户

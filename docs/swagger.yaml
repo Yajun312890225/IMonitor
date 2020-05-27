@@ -1,4 +1,16 @@
 definitions:
+  dao.ReqLoginUser:
+    properties:
+      password:
+        example: "123"
+        type: string
+      username:
+        example: admin
+        type: string
+    required:
+    - password
+    - username
+    type: object
   model.Menu:
     properties:
       action:
@@ -123,6 +135,23 @@ info:
   contact: {}
   license: {}
 paths:
+  /api/v1/login:
+    post:
+      parameters:
+      - description: body
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/dao.ReqLoginUser'
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Res'
+      summary: 用户登录
+      tags:
+      - User
   /api/v1/menu:
     post:
       consumes:
@@ -183,7 +212,7 @@ paths:
       description: 获取JSON
       parameters:
       - description: menuId
-        in: query
+        in: path
         name: menuId
         type: string
       responses:
@@ -332,27 +361,6 @@ paths:
       summary: 角色列表数据
       tags:
       - Role
-  /login:
-    post:
-      parameters:
-      - description: admin
-        in: formData
-        name: username
-        required: true
-        type: string
-      - description: admin@123
-        in: formData
-        name: password
-        required: true
-        type: string
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/response.Res'
-      summary: 用户登录
-      tags:
-      - user
   /query:
     post:
       description: 查询登录状态，并返回user
@@ -363,7 +371,7 @@ paths:
             $ref: '#/definitions/response.Res'
       summary: 查询登录状态，并返回user
       tags:
-      - user
+      - User
   /user/add:
     post:
       parameters:
@@ -384,7 +392,7 @@ paths:
             $ref: '#/definitions/response.Res'
       summary: 管理员添加用户
       tags:
-      - user
+      - User
   /user/logout:
     post:
       responses:
@@ -394,5 +402,5 @@ paths:
             $ref: '#/definitions/response.Res'
       summary: 注销登录
       tags:
-      - user
+      - User
 swagger: "2.0"

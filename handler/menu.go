@@ -200,7 +200,7 @@ func GetMenuRole(c *gin.Context) {
 // @Summary 获取Menu数据
 // @Description 获取JSON
 // @Tags Menu
-// @Param menuId query string false "menuId"
+// @Param menuId path string false "menuId"
 // @Success 200 {string} string "{"code": 200, "data": [...]}"
 // @Success 200 {string} string "{"code": -1, "message": "抱歉未找到相关信息"}"
 // @Router /api/v1/menu/{menuId} [get]

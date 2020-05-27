@@ -15,7 +15,7 @@ import (
 // Query 客户端可以用此链接查询自身登录状态。cookie没过期，返回user
 // @Summary 查询登录状态，并返回user
 // @Description 查询登录状态，并返回user
-// @Tags user
+// @Tags User
 // @Success 200 {object} response.Res{data=model.User}
 // @Router /query [post]
 func Query(c *gin.Context) {
@@ -41,11 +41,10 @@ func Query(c *gin.Context) {
 
 // Login 登录
 // @Summary 用户登录
-// @Tags user
-// @Param username formData string true "admin"
-// @Param password formData string true "admin@123"
+// @Tags User
+// @Param data body dao.ReqLoginUser true "body"
 // @Success 200 {object} response.Res{data=model.User}
-// @Router /login [post]
+// @Router /api/v1/login [post]
 func Login(c *gin.Context) {
 	var loginDao dao.ReqLoginUser
 	if err := c.ShouldBind(&loginDao); err == nil {
@@ -74,7 +73,7 @@ func Login(c *gin.Context) {
 
 // Logout 登出
 // @Summary 注销登录
-// @Tags user
+// @Tags User
 // @Success 200 {object} response.Res
 // @Router /user/logout [post]
 func Logout(c *gin.Context) {
@@ -89,7 +88,7 @@ func Logout(c *gin.Context) {
 
 // AddUser 管理员添加用户
 // @Summary 管理员添加用户
-// @Tags user
+// @Tags User
 // @Param username formData string true "dahuang"
 // @Param nickname formData string true "大黄"
 // @Success 200 {object} response.Res{data=model.User}

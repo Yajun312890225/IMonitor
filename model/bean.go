@@ -16,7 +16,7 @@ type User struct {
 	Phone     string `gorm:"type:varchar(11)" json:"phone"`
 	RoleId    int    `gorm:"type:int(11)" json:"roleId"`
 	Username  string `gorm:"type:varchar(64)" json:"username"`
-	Password  string `gorm:"type:varchar(128)" json:"password"`
+	Password  string `gorm:"type:varchar(128)" json:"-"`
 	Salt      string `gorm:"type:varchar(255)" json:"salt"`
 	Avatar    string `gorm:"type:varchar(255)" json:"avatar"`
 	Sex       string `gorm:"type:varchar(255)" json:"sex"`
