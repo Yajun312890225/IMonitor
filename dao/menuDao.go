@@ -156,3 +156,41 @@ func (m *MenuDao) Delete(id int) (success bool, err error) {
 	success = true
 	return
 }
+
+// SetMenuRole 获取对应角色的菜单
+func (m *MenuDao) SetMenuRole(rolename string) (menu []MenuDao, err error) {
+
+	menulist, err := m.GetByRoleName(rolename)
+
+	menu = make([]MenuDao, 0)
+	for i := 0; i < len(menulist); i++ {
+		if menulist[i].ParentId != 0 {
+			continue
+		}
+		menusInfo := RecursionMenu(&menulist, menulist[i].Menu)
+
+		menu = append(menu, MenuDao{menusInfo})
+	}
+	return
+}
+
+// GetByRoleName 通过角色获取菜单
+func (m *MenuDao) GetByRoleName(rolename string) (Menus []MenuDao, err error) {
+	table := model.DB.Table("menu").Select("menu.*").Joins("left join role_menu on role_menu.menu_id=menu.menu_id")
+	table = table.Where("role_menu.role_name=? and menu_type in ('M','C')", rolename)
+	if err = table.Order("sort").Find(&Menus).Error; err != nil {
+		return
+	}
+	return
+}
+
+// GetByMenuId 获取菜单
+func (m *MenuDao) GetByMenuId() (Menu MenuDao, err error) {
+
+	table := model.DB.Table("menu")
+	table = table.Where("menu_id = ?", m.MenuId)
+	if err = table.Find(&Menu).Error; err != nil {
+		return
+	}
+	return
+}

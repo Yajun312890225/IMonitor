@@ -55,8 +55,7 @@ func (rm *RolemenuDao) DeleteRoleMenu(roleId int) error {
 	if err := model.DB.Table("role").Where("role_id = ?", roleId).First(&role).Error; err != nil {
 		return err
 	}
-	// sql3 := "delete from casbin_rule where v0= '" + role.RoleKey + "';"
-	// orm.Eloquent.Exec(sql3)
+
 	var rules []model.CasbinRule
 	if err := model.DB.Table("casbin_rule").Where("v0= ?", role.RoleKey).Find(&rules).Error; err != nil {
 		return err
@@ -67,4 +66,26 @@ func (rm *RolemenuDao) DeleteRoleMenu(roleId int) error {
 	}
 	return nil
 
+}
+
+// BatchDeleteRoleMenu 批量删除角色对应菜单
+func (rm *RolemenuDao) BatchDeleteRoleMenu(roleIds []int) error {
+	if err := model.DB.Table("role_menu").Where("role_id in (?)", roleIds).Delete(&rm).Error; err != nil {
+		return err
+	}
+	var roles []model.Role
+	if err := model.DB.Table("role").Where("role_id in (?)", roleIds).Find(&roles).Error; err != nil {
+		return err
+	}
+	for _, role := range roles {
+		var rules []model.CasbinRule
+		if err := model.DB.Table("casbin_rule").Where("v0= ?", role.RoleKey).Find(&rules).Error; err != nil {
+			return err
+		}
+		cas := casbin.GetCasbin()
+		for _, rule := range rules {
+			cas.Enforce.RemovePolicy(rule.V0, rule.V1, rule.V2)
+		}
+	}
+	return nil
 }

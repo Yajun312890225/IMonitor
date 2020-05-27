@@ -132,13 +132,13 @@ func UpdateMenu(c *gin.Context) {
 // @Summary 删除菜单
 // @Description 删除数据
 // @Tags Menu
-// @Param id path int true "id"
+// @Param menuId path int true "menuId"
 // @Success 200 {string} string	"{"code": 200, "message": "删除成功"}"
 // @Success 200 {string} string	"{"code": -1, "message": "删除失败"}"
-// @Router /api/v1/menu/{id} [delete]
+// @Router /api/v1/menu/{menuId} [delete]
 func DeleteMenu(c *gin.Context) {
 	data := dao.Menu()
-	id, err := strconv.Atoi(c.Param("id"))
+	menuId, err := strconv.Atoi(c.Param("menuId"))
 
 	if err != nil {
 		logrus.Info(err)
@@ -151,7 +151,7 @@ func DeleteMenu(c *gin.Context) {
 	}
 	session := sessions.Default(c)
 	data.UpdateBy = strconv.Itoa(session.Get("userid").(int))
-	_, err = data.Delete(id)
+	_, err = data.Delete(menuId)
 	if err != nil {
 		c.JSON(http.StatusOK, response.Res{
 			Code:  response.CodeParamErr,
@@ -165,4 +165,72 @@ func DeleteMenu(c *gin.Context) {
 		Data: "",
 		Msg:  "删除成功",
 	})
+}
+
+// GetMenuRole 根据角色名称获取菜单列表数据
+// @Summary 根据角色名称获取菜单列表数据（左菜单使用）
+// @Description 获取JSON
+// @Tags Menu
+// @Success 200 {string} string "{"code": 200, "data": [...]}"
+// @Success 200 {string} string "{"code": -1, "message": "抱歉未找到相关信息"}"
+// @Router /api/v1/menurole [get]
+func GetMenuRole(c *gin.Context) {
+	data := dao.Menu()
+
+	session := sessions.Default(c)
+	roleName := session.Get("rolekey").(string)
+	result, err := data.SetMenuRole(roleName)
+	if err != nil {
+		c.JSON(http.StatusOK, response.Res{
+			Code:  response.CodeParamErr,
+			Msg:   response.CodeErrMsg[response.CodeParamErr],
+			Error: err.Error(),
+		})
+		return
+	}
+	c.JSON(http.StatusOK, response.Res{
+		Code: response.CodeSuccess,
+		Data: result,
+		Msg:  "",
+	})
+
+}
+
+// GetMenu 获取Menu数据
+// @Summary 获取Menu数据
+// @Description 获取JSON
+// @Tags Menu
+// @Param menuId query string false "menuId"
+// @Success 200 {string} string "{"code": 200, "data": [...]}"
+// @Success 200 {string} string "{"code": -1, "message": "抱歉未找到相关信息"}"
+// @Router /api/v1/menu/{menuId} [get]
+func GetMenu(c *gin.Context) {
+	data := dao.Menu()
+	menuId, err := strconv.Atoi(c.Param("menuId"))
+
+	if err != nil {
+		logrus.Info(err)
+		c.JSON(http.StatusOK, response.Res{
+			Code:  response.CodeParamErr,
+			Msg:   response.CodeErrMsg[response.CodeParamErr],
+			Error: err.Error(),
+		})
+		return
+	}
+	data.MenuId = menuId
+	result, err := data.GetByMenuId()
+	if err != nil {
+		c.JSON(http.StatusOK, response.Res{
+			Code:  response.CodeParamErr,
+			Msg:   response.CodeErrMsg[response.CodeParamErr],
+			Error: err.Error(),
+		})
+		return
+	}
+	c.JSON(http.StatusOK, response.Res{
+		Code: response.CodeSuccess,
+		Data: result,
+		Msg:  "",
+	})
+
 }

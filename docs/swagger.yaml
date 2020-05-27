@@ -6,6 +6,7 @@ definitions:
       breadcrumb:
         type: string
       children:
+        description: RoleId     int    `gorm:"-"`
         items:
           $ref: '#/definitions/model.Menu'
         type: array
@@ -41,8 +42,6 @@ definitions:
         type: string
       permission:
         type: string
-      roleId:
-        type: integer
       sort:
         type: integer
       title:
@@ -163,13 +162,13 @@ paths:
       summary: 修改菜单
       tags:
       - Menu
-  /api/v1/menu/{id}:
+  /api/v1/menu/{menuId}:
     delete:
       description: 删除数据
       parameters:
-      - description: id
+      - description: menuId
         in: path
-        name: id
+        name: menuId
         required: true
         type: integer
       responses:
@@ -178,6 +177,21 @@ paths:
           schema:
             type: string
       summary: 删除菜单
+      tags:
+      - Menu
+    get:
+      description: 获取JSON
+      parameters:
+      - description: menuId
+        in: query
+        name: menuId
+        type: string
+      responses:
+        "200":
+          description: '{"code": -1, "message": "抱歉未找到相关信息"}'
+          schema:
+            type: string
+      summary: 获取Menu数据
       tags:
       - Menu
   /api/v1/menulist:
@@ -202,6 +216,17 @@ paths:
           schema:
             type: string
       summary: Menu列表数据
+      tags:
+      - Menu
+  /api/v1/menurole:
+    get:
+      description: 获取JSON
+      responses:
+        "200":
+          description: '{"code": -1, "message": "抱歉未找到相关信息"}'
+          schema:
+            type: string
+      summary: 根据角色名称获取菜单列表数据（左菜单使用）
       tags:
       - Menu
   /api/v1/role:
@@ -244,6 +269,22 @@ paths:
       tags:
       - Role
   /api/v1/role/{roleId}:
+    delete:
+      description: 删除数据
+      parameters:
+      - description: roleId
+        in: path
+        name: roleId
+        required: true
+        type: string
+      responses:
+        "200":
+          description: '{"code": -1, "message": "删除失败"}'
+          schema:
+            type: string
+      summary: 删除用户角色
+      tags:
+      - Role
     get:
       description: 获取JSON
       parameters:

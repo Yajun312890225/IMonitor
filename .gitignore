@@ -3,3 +3,4 @@ go.sum
 vendor/
 system.*
 .DS_Store
+main

@@ -5,6 +5,7 @@ import (
 	"iMonitor/response"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
@@ -193,5 +194,57 @@ func UpdateRole(c *gin.Context) {
 		Code: response.CodeSuccess,
 		Data: result,
 		Msg:  "",
+	})
+}
+
+// DeleteRole 删除用户角色
+// @Summary 删除用户角色
+// @Description 删除数据
+// @Tags Role
+// @Param roleId path string true "roleId"
+// @Success 200 {string} string	"{"code": 200, "message": "删除成功"}"
+// @Success 200 {string} string	"{"code": -1, "message": "删除失败"}"
+// @Router /api/v1/role/{roleId} [delete]
+func DeleteRole(c *gin.Context) {
+
+	data := dao.Role()
+	roleIds := func(keys string) (IDS []int) {
+		ids := strings.Split(keys, ",")
+		for i := 0; i < len(ids); i++ {
+			ID, _ := strconv.Atoi(ids[i])
+			IDS = append(IDS, ID)
+		}
+		return
+
+	}(c.Param("roleId"))
+
+	session := sessions.Default(c)
+	data.UpdateBy = strconv.Itoa(session.Get("userid").(int))
+
+	roleMenu := dao.RoleMenu()
+	err := roleMenu.BatchDeleteRoleMenu(roleIds)
+	if err != nil {
+		c.JSON(http.StatusOK, response.Res{
+			Code:  response.CodeRoleMenuUpdateErr,
+			Msg:   response.CodeErrMsg[response.CodeRoleMenuUpdateErr],
+			Error: err.Error(),
+		})
+		return
+	}
+
+	err = data.BatchDelete(roleIds)
+	if err != nil {
+		c.JSON(http.StatusOK, response.Res{
+			Code:  response.CodeParamErr,
+			Msg:   response.CodeErrMsg[response.CodeParamErr],
+			Error: err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, response.Res{
+		Code: response.CodeSuccess,
+		Data: "",
+		Msg:  "删除成功",
 	})
 }

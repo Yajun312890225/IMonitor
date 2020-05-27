@@ -23,7 +23,7 @@ func GetCasbin() *Casbin {
 		mycasbin.CasbinAdapter = NewAdapter("mysql", os.Getenv("MYSQL_URL"))
 		mycasbin.Enforce = casbin.NewEnforcer("./conf/rbac_model.conf", mycasbin.CasbinAdapter)
 		if err := mycasbin.Enforce.LoadPolicy(); err != nil {
-			logrus.Debug("casbin rbac_model or policy init error, message: %v", err)
+			logrus.Debug("casbin rbac_model or policy init error, message: ", err)
 		}
 	}
 	return mycasbin

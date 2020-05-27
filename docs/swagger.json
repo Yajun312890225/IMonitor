@@ -65,7 +65,30 @@
                 }
             }
         },
-        "/api/v1/menu/{id}": {
+        "/api/v1/menu/{menuId}": {
+            "get": {
+                "description": "获取JSON",
+                "tags": [
+                    "Menu"
+                ],
+                "summary": "获取Menu数据",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "menuId",
+                        "name": "menuId",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"code\": -1, \"message\": \"抱歉未找到相关信息\"}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
             "delete": {
                 "description": "删除数据",
                 "tags": [
@@ -75,8 +98,8 @@
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "id",
-                        "name": "id",
+                        "description": "menuId",
+                        "name": "menuId",
                         "in": "path",
                         "required": true
                     }
@@ -118,6 +141,23 @@
                         "in": "query"
                     }
                 ],
+                "responses": {
+                    "200": {
+                        "description": "{\"code\": -1, \"message\": \"抱歉未找到相关信息\"}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/menurole": {
+            "get": {
+                "description": "获取JSON",
+                "tags": [
+                    "Menu"
+                ],
+                "summary": "根据角色名称获取菜单列表数据（左菜单使用）",
                 "responses": {
                     "200": {
                         "description": "{\"code\": -1, \"message\": \"抱歉未找到相关信息\"}",
@@ -206,6 +246,30 @@
                 "responses": {
                     "200": {
                         "description": "{\"code\": -1, \"message\": \"抱歉未找到相关信息\"}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "删除数据",
+                "tags": [
+                    "Role"
+                ],
+                "summary": "删除用户角色",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "roleId",
+                        "name": "roleId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"code\": -1, \"message\": \"删除失败\"}",
                         "schema": {
                             "type": "string"
                         }
@@ -371,6 +435,7 @@
                     "type": "string"
                 },
                 "children": {
+                    "description": "RoleId     int    `gorm:\"-\"`",
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/model.Menu"
@@ -423,9 +488,6 @@
                 },
                 "permission": {
                     "type": "string"
-                },
-                "roleId": {
-                    "type": "integer"
                 },
                 "sort": {
                     "type": "integer"

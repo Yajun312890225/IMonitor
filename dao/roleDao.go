@@ -114,3 +114,11 @@ func (r *RoleDao) Update(id int) (update RoleDao, err error) {
 	}
 	return
 }
+
+// BatchDelete 批量删除
+func (r *RoleDao) BatchDelete(id []int) (err error) {
+	if err = model.DB.Table("role").Where("role_id in (?)", id).Delete(&RoleDao{}).Error; err != nil {
+		return
+	}
+	return
+}
