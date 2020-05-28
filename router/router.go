@@ -28,9 +28,13 @@ func InitRouter() *gin.Engine {
 	// 可自由配置统一入口，比如/api/v1 版本信息
 	v1 := r.Group("/api/v1")
 	{
+
 		v1.POST("/login", handler.Login)
+		v1.Use(middleware.AuthRequired())
 		v1.Use(middleware.AuthCheckRole())
-		v1.POST("query", handler.Query)
+
+		v1.GET("/query", handler.Query)
+		v1.POST("/logout", handler.Logout)
 
 		v1.GET("/rolelist", handler.GetRoleList)
 		v1.GET("/role/:roleId", handler.GetRole)
@@ -45,15 +49,12 @@ func InitRouter() *gin.Engine {
 		v1.DELETE("/menu/:id", handler.DeleteMenu)
 		v1.GET("/menurole", handler.GetMenuRole)
 
-		// // 用户登录
+		v1.GET("/userlist", handler.GetUserList)
+		// v1.GET("/user/:userId", handler.GetUser)
+		// v1.POST("/user", handler.InsertUser)
+		// v1.PUT("/user", handler.UpdateUser)
+		// v1.DELETE("/user/:userId", handler.DeleteUser)
 
-		// // 需要登录保护的
-		// auth := v1.Group("")
-		// auth.Use(middleware.AuthRequired())
-		// {
-		// 	// User Routing
-		// 	auth.POST("user/logout", handler.Logout)
-		// }
 	}
 	return r
 }

@@ -24,6 +24,7 @@ import (
 // @Success 200 {object} response.PageResponse "{"code": 200, "data": [...]}"
 // @Router /api/v1/rolelist [get]
 func GetRoleList(c *gin.Context) {
+	data := dao.Role()
 	var pageSize = 10
 	var pageIndex = 1
 
@@ -34,10 +35,12 @@ func GetRoleList(c *gin.Context) {
 	if index := c.Request.FormValue("pageIndex"); index != "" {
 		pageIndex, _ = strconv.Atoi(index)
 	}
-	result, count, err := dao.Role().GetPage(pageSize, pageIndex)
+	data.RoleKey = c.Request.FormValue("roleKey")
+	data.RoleName = c.Request.FormValue("roleName")
+	data.Status = c.Request.FormValue("status")
+	result, count, err := data.GetPage(pageSize, pageIndex)
 	if err != nil {
 		logrus.Debug(err)
-
 	}
 	c.JSON(http.StatusOK, response.PageResponse{
 		Code: response.CodeSuccess,

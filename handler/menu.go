@@ -15,7 +15,6 @@ import (
 // @Summary Menu列表数据
 // @Description 获取JSON
 // @Tags Menu
-// @Param menuName query string false "menuName"
 // @Param visible query string false "visible"
 // @Param title query string false "title"
 // @Success 200 {string} string "{"code": 200, "data": [...]}"
@@ -24,7 +23,6 @@ import (
 func GetMenuList(c *gin.Context) {
 
 	menu := dao.Menu()
-	menu.MenuName = c.Request.FormValue("menuName")
 	menu.Visible = c.Request.FormValue("visible")
 	menu.Title = c.Request.FormValue("title")
 	result, err := menu.GetAllMenu()

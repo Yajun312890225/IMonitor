@@ -4,7 +4,7 @@ all: srun
 
 build:
 	swag init
-	GOOS=linux GOARCH=amd64 go build ./main.go
+	GOOS=linux GOARCH=amd64 go build ./main.go && mv main start
 run: 
 	go run main.go
 srun:

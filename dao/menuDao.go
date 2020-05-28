@@ -49,10 +49,11 @@ func RecursionMenu(menulist *[]MenuDao, menu model.Menu) model.Menu {
 		}
 		mi := model.Menu{}
 		mi.MenuId = list[j].MenuId
-		mi.MenuName = list[j].MenuName
+		mi.Name = list[j].Name
 		mi.Title = list[j].Title
 		mi.Icon = list[j].Icon
 		mi.Path = list[j].Path
+		mi.Paths = list[j].Paths
 		mi.MenuType = list[j].MenuType
 		mi.Action = list[j].Action
 		mi.Permission = list[j].Permission
@@ -62,8 +63,9 @@ func RecursionMenu(menulist *[]MenuDao, menu model.Menu) model.Menu {
 		mi.Component = list[j].Component
 		mi.Sort = list[j].Sort
 		mi.Visible = list[j].Visible
-		mi.Children = []model.Menu{}
-
+		mi.CreatedAt = list[j].CreatedAt
+		mi.UpdatedAt = list[j].UpdatedAt
+		mi.Routes = []model.Menu{}
 		if mi.MenuType != "F" {
 			ms := RecursionMenu(menulist, mi)
 			min = append(min, ms)
@@ -73,16 +75,13 @@ func RecursionMenu(menulist *[]MenuDao, menu model.Menu) model.Menu {
 		}
 
 	}
-	menu.Children = min
+	menu.Routes = min
 	return menu
 }
 
 //GetPage 查找所有Menu信息等待去处理
 func (m *MenuDao) GetPage() (menus []MenuDao, err error) {
 	table := model.DB.Table("menu")
-	if m.MenuName != "" {
-		table = table.Where("menu_name = ?", m.MenuName)
-	}
 	if m.Title != "" {
 		table = table.Where("title = ?", m.Title)
 	}

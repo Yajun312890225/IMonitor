@@ -32,6 +32,22 @@
                 }
             }
         },
+        "/api/v1/logout": {
+            "post": {
+                "tags": [
+                    "User"
+                ],
+                "summary": "注销登录",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Res"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/menu": {
             "put": {
                 "description": "获取JSON",
@@ -151,12 +167,6 @@
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "menuName",
-                        "name": "menuName",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
                         "description": "visible",
                         "name": "visible",
                         "in": "query"
@@ -190,6 +200,23 @@
                         "description": "{\"code\": -1, \"message\": \"抱歉未找到相关信息\"}",
                         "schema": {
                             "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/query": {
+            "get": {
+                "description": "查询登录状态，并返回user",
+                "tags": [
+                    "User"
+                ],
+                "summary": "查询登录状态，并返回user",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Res"
                         }
                     }
                 }
@@ -353,66 +380,50 @@
                 }
             }
         },
-        "/query": {
-            "post": {
-                "description": "查询登录状态，并返回user",
+        "/api/v1/userlist": {
+            "get": {
+                "description": "获取JSON",
                 "tags": [
                     "User"
                 ],
-                "summary": "查询登录状态，并返回user",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/response.Res"
-                        }
-                    }
-                }
-            }
-        },
-        "/user/add": {
-            "post": {
-                "tags": [
-                    "User"
-                ],
-                "summary": "管理员添加用户",
+                "summary": "列表数据",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "dahuang",
+                        "description": "username",
                         "name": "username",
-                        "in": "formData",
-                        "required": true
+                        "in": "query"
                     },
                     {
                         "type": "string",
-                        "description": "大黄",
-                        "name": "nickname",
-                        "in": "formData",
-                        "required": true
+                        "description": "phone",
+                        "name": "phone",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "status",
+                        "name": "status",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "页条数",
+                        "name": "pageSize",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "页码",
+                        "name": "pageIndex",
+                        "in": "query"
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "{\"code\": -1, \"message\": \"抱歉未找到相关信息\"}",
                         "schema": {
-                            "$ref": "#/definitions/response.Res"
-                        }
-                    }
-                }
-            }
-        },
-        "/user/logout": {
-            "post": {
-                "tags": [
-                    "User"
-                ],
-                "summary": "注销登录",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/response.Res"
+                            "type": "string"
                         }
                     }
                 }
@@ -446,13 +457,6 @@
                 "breadcrumb": {
                     "type": "string"
                 },
-                "children": {
-                    "description": "RoleId     int    `gorm:\"-\"`",
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/model.Menu"
-                    }
-                },
                 "component": {
                     "type": "string"
                 },
@@ -477,10 +481,10 @@
                 "menuId": {
                     "type": "integer"
                 },
-                "menuName": {
+                "menuType": {
                     "type": "string"
                 },
-                "menuType": {
+                "name": {
                     "type": "string"
                 },
                 "noCache": {
@@ -500,6 +504,13 @@
                 },
                 "permission": {
                     "type": "string"
+                },
+                "routes": {
+                    "description": "RoleId     int    `gorm:\"-\"`",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.Menu"
+                    }
                 },
                 "sort": {
                     "type": "integer"
@@ -558,7 +569,7 @@
                     "type": "integer"
                 },
                 "status": {
-                    "type": "integer"
+                    "type": "string"
                 },
                 "updateBy": {
                     "type": "string"

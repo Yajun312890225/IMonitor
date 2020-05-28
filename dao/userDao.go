@@ -6,7 +6,9 @@ import (
 )
 
 // UserDao 对user模型进行增删查改的单例工具
-type UserDao struct{}
+type UserDao struct {
+	model.User
+}
 
 var userDao *UserDao
 
@@ -60,7 +62,7 @@ func (addUser *ReqAddUser) RegistUser() response.Res {
 		Username: addUser.Username,
 		Password: "111111", // 默认密码
 		Nickname: addUser.Nickname,
-		Status:   "normal", // 默认普通用户
+		Status:   "1", // 默认普通用户
 	}
 	if err := model.DB.Create(&user).Error; err != nil {
 		return response.Res{
@@ -80,4 +82,27 @@ func (*UserDao) GetUserByID(id interface{}) (model.User, error) {
 	var uesr model.User
 	result := model.DB.First(&uesr, id)
 	return uesr, result.Error
+}
+
+// GetPage 获取用户列表
+func (u *UserDao) GetPage(pageSize int, pageIndex int) ([]UserDao, int, error) {
+	var doc []UserDao
+	table := model.DB.Select("user.*").Table("user")
+	if u.Username != "" {
+		table = table.Where("username = ?", u.Username)
+	}
+	if u.Status != "" {
+		table = table.Where("user.status = ?", u.Status)
+	}
+
+	if u.Phone != "" {
+		table = table.Where("user.phone = ?", u.Phone)
+	}
+
+	var count int
+	if err := table.Offset((pageIndex - 1) * pageSize).Limit(pageSize).Find(&doc).Error; err != nil {
+		return nil, 0, err
+	}
+	table.Where("user.deleted_at IS NULL").Count(&count)
+	return doc, count, nil
 }

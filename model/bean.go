@@ -21,7 +21,7 @@ type User struct {
 	Avatar    string `gorm:"type:varchar(255)" json:"avatar"`
 	Sex       string `gorm:"type:varchar(255)" json:"sex"`
 	Email     string `gorm:"type:varchar(128)" json:"email"`
-	Status    string `gorm:"type:enum('admin', 'normal');default:'normal'" json:"status"`
+	Status    string `gorm:"type:int(1);" json:"status"`
 	CreateBy  string `gorm:"type:varchar(128)" json:"createBy"`
 	UpdateBy  string `gorm:"type:varchar(128)" json:"updateBy"`
 	Remark    string `gorm:"type:varchar(255)" json:"remark"`
@@ -34,7 +34,7 @@ type User struct {
 type Role struct {
 	RoleId    int    `json:"roleId" gorm:"primary_key;AUTO_INCREMENT"`
 	RoleName  string `json:"roleName" gorm:"type:varchar(128);"`
-	Status    int    `json:"status" gorm:"type:int(1);"`
+	Status    string `json:"status" gorm:"type:int(1);"`
 	RoleKey   string `json:"roleKey" gorm:"type:varchar(128);"`
 	RoleSort  int    `json:"roleSort" gorm:"type:int(4);"`
 	DataScope string `json:"dataScope" gorm:"type:varchar(128);"`
@@ -48,7 +48,7 @@ type Role struct {
 
 type Menu struct {
 	MenuId     int    `json:"menuId" gorm:"primary_key;AUTO_INCREMENT" `
-	MenuName   string `json:"menuName" gorm:"type:varchar(11);" `
+	Name       string `json:"name" gorm:"type:varchar(11);" `
 	Title      string `json:"title" gorm:"type:varchar(64);"`
 	Icon       string `json:"icon" gorm:"type:varchar(128);"`
 	Path       string `json:"path" gorm:"type:varchar(128);"`
@@ -67,7 +67,7 @@ type Menu struct {
 	IsFrame    string `json:"isFrame" gorm:"type:int(1);DEFAULT:0;"`
 	Params     string `json:"params" gorm:"-"`
 	// RoleId     int    `gorm:"-"`
-	Children []Menu `json:"children" gorm:"-"`
+	Routes   []Menu `json:"routes" gorm:"-"`
 	IsSelect bool   `json:"is_select" gorm:"-"`
 	Model
 }

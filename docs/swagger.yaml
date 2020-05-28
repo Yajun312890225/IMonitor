@@ -17,11 +17,6 @@ definitions:
         type: string
       breadcrumb:
         type: string
-      children:
-        description: RoleId     int    `gorm:"-"`
-        items:
-          $ref: '#/definitions/model.Menu'
-        type: array
       component:
         type: string
       createBy:
@@ -38,9 +33,9 @@ definitions:
         type: string
       menuId:
         type: integer
-      menuName:
-        type: string
       menuType:
+        type: string
+      name:
         type: string
       noCache:
         type: boolean
@@ -54,6 +49,11 @@ definitions:
         type: string
       permission:
         type: string
+      routes:
+        description: RoleId     int    `gorm:"-"`
+        items:
+          $ref: '#/definitions/model.Menu'
+        type: array
       sort:
         type: integer
       title:
@@ -92,7 +92,7 @@ definitions:
       roleSort:
         type: integer
       status:
-        type: integer
+        type: string
       updateBy:
         type: string
       updatedAt:
@@ -150,6 +150,16 @@ paths:
           schema:
             $ref: '#/definitions/response.Res'
       summary: 用户登录
+      tags:
+      - User
+  /api/v1/logout:
+    post:
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Res'
+      summary: 注销登录
       tags:
       - User
   /api/v1/menu:
@@ -227,10 +237,6 @@ paths:
     get:
       description: 获取JSON
       parameters:
-      - description: menuName
-        in: query
-        name: menuName
-        type: string
       - description: visible
         in: query
         name: visible
@@ -258,6 +264,17 @@ paths:
       summary: 根据角色名称获取菜单列表数据（左菜单使用）
       tags:
       - Menu
+  /api/v1/query:
+    get:
+      description: 查询登录状态，并返回user
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Res'
+      summary: 查询登录状态，并返回user
+      tags:
+      - User
   /api/v1/role:
     post:
       consumes:
@@ -361,46 +378,36 @@ paths:
       summary: 角色列表数据
       tags:
       - Role
-  /query:
-    post:
-      description: 查询登录状态，并返回user
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/response.Res'
-      summary: 查询登录状态，并返回user
-      tags:
-      - User
-  /user/add:
-    post:
+  /api/v1/userlist:
+    get:
+      description: 获取JSON
       parameters:
-      - description: dahuang
-        in: formData
+      - description: username
+        in: query
         name: username
-        required: true
         type: string
-      - description: 大黄
-        in: formData
-        name: nickname
-        required: true
+      - description: phone
+        in: query
+        name: phone
         type: string
+      - description: status
+        in: query
+        name: status
+        type: string
+      - description: 页条数
+        in: query
+        name: pageSize
+        type: integer
+      - description: 页码
+        in: query
+        name: pageIndex
+        type: integer
       responses:
         "200":
-          description: OK
+          description: '{"code": -1, "message": "抱歉未找到相关信息"}'
           schema:
-            $ref: '#/definitions/response.Res'
-      summary: 管理员添加用户
-      tags:
-      - User
-  /user/logout:
-    post:
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/response.Res'
-      summary: 注销登录
+            type: string
+      summary: 列表数据
       tags:
       - User
 swagger: "2.0"

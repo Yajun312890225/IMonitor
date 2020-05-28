@@ -35,7 +35,7 @@ func (r *RoleDao) GetPage(pageSize int, pageIndex int) ([]model.Role, int, error
 	if r.RoleName != "" {
 		table = table.Where("role_name = ?", r.RoleName)
 	}
-	if r.Status != 0 {
+	if r.Status != "" {
 		table = table.Where("status = ?", r.Status)
 	}
 	if r.RoleKey != "" {

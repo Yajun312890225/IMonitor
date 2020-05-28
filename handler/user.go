@@ -2,6 +2,7 @@ package handler
 
 import (
 	"net/http"
+	"strconv"
 
 	"iMonitor/dao"
 	"iMonitor/model"
@@ -17,7 +18,7 @@ import (
 // @Description 查询登录状态，并返回user
 // @Tags User
 // @Success 200 {object} response.Res{data=model.User}
-// @Router /query [post]
+// @Router /api/v1/query [get]
 func Query(c *gin.Context) {
 	if user, _ := c.Get("user"); user != nil {
 		if _, ok := user.(*model.User); ok {
@@ -75,7 +76,7 @@ func Login(c *gin.Context) {
 // @Summary 注销登录
 // @Tags User
 // @Success 200 {object} response.Res
-// @Router /user/logout [post]
+// @Router /api/v1/logout [post]
 func Logout(c *gin.Context) {
 	s := sessions.Default(c)
 	s.Clear()
@@ -86,31 +87,47 @@ func Logout(c *gin.Context) {
 	})
 }
 
-// AddUser 管理员添加用户
-// @Summary 管理员添加用户
+// GetUserList 列表数据
+// @Summary 列表数据
+// @Description 获取JSON
 // @Tags User
-// @Param username formData string true "dahuang"
-// @Param nickname formData string true "大黄"
-// @Success 200 {object} response.Res{data=model.User}
-// @Router /user/add [post]
-func AddUser(c *gin.Context) {
-	var addDao dao.ReqAddUser
-	if err := c.ShouldBind(&addDao); err != nil {
-		res := addDao.RegistUser()
-		c.JSON(http.StatusOK, res)
-	} else {
-		c.JSON(http.StatusOK, response.Res{
-			Code:  response.CodeParamErr,
-			Msg:   response.CodeErrMsg[response.CodeParamErr],
-			Error: err.Error(),
-		})
+// @Param username query string false "username"
+// @Param phone query string false "phone"
+// @Param status query string false "status"
+// @Param pageSize query int false "页条数"
+// @Param pageIndex query int false "页码"
+// @Success 200 {string} string "{"code": 200, "data": [...]}"
+// @Success 200 {string} string "{"code": -1, "message": "抱歉未找到相关信息"}"
+// @Router /api/v1/userlist [get]
+func GetUserList(c *gin.Context) {
+	data := dao.User()
+	var pageSize = 10
+	var pageIndex = 1
+
+	if size := c.Request.FormValue("pageSize"); size != "" {
+		pageSize, _ = strconv.Atoi(size)
 	}
-}
 
-func DeleteUser(c *gin.Context) {
-	// var userid string
-}
+	if index := c.Request.FormValue("pageIndex"); index != "" {
+		pageIndex, _ = strconv.Atoi(index)
+	}
 
-func UserList(c *gin.Context) {
+	data.Username = c.Request.FormValue("username")
+	data.Phone = c.Request.FormValue("phone")
+	data.Status = c.Request.FormValue("status")
 
+	result, count, err := data.GetPage(pageSize, pageIndex)
+	if err != nil {
+		logrus.Debug(err)
+	}
+	c.JSON(http.StatusOK, response.PageResponse{
+		Code: response.CodeSuccess,
+		Data: response.Page{
+			List:      result,
+			Count:     count,
+			PageIndex: pageIndex,
+			PageSize:  pageSize,
+		},
+		Msg: "",
+	})
 }
