@@ -2,6 +2,7 @@ package handler
 
 import (
 	"iMonitor/dao"
+	"iMonitor/model"
 	"iMonitor/response"
 	"net/http"
 	"strconv"
@@ -95,7 +96,9 @@ func GetRole(c *gin.Context) {
 func InsertRole(c *gin.Context) {
 
 	data := dao.Role()
-	err := c.ShouldBind(&data)
+	role := model.Role{}
+	err := c.ShouldBind(&role)
+	data.Role = role
 	if err != nil {
 		logrus.Info(err)
 		c.JSON(http.StatusOK, response.Res{
@@ -150,7 +153,9 @@ func InsertRole(c *gin.Context) {
 // @Router /api/v1/role [put]
 func UpdateRole(c *gin.Context) {
 	data := dao.Role()
-	err := c.ShouldBind(&data)
+	role := model.Role{}
+	err := c.ShouldBind(&role)
+	data.Role = role
 	if err != nil {
 		logrus.Info(err)
 		c.JSON(http.StatusOK, response.Res{
@@ -161,7 +166,7 @@ func UpdateRole(c *gin.Context) {
 		return
 	}
 	session := sessions.Default(c)
-	data.CreateBy = strconv.Itoa(session.Get("userid").(int))
+	data.UpdateBy = strconv.Itoa(session.Get("userid").(int))
 
 	result, err := data.Update(data.RoleId)
 	if err != nil {

@@ -1,23 +1,19 @@
 package dao
 
 import (
+	"errors"
 	"iMonitor/model"
 	"iMonitor/response"
 )
 
-// UserDao 对user模型进行增删查改的单例工具
+// UserDao 对user模型进行增删查改
 type UserDao struct {
 	model.User
 }
 
-var userDao *UserDao
-
-// User 得到dao-user 单例工具
+// User
 func User() *UserDao {
-	if userDao == nil {
-		userDao = &UserDao{}
-	}
-	return userDao
+	return &UserDao{}
 }
 
 // ReqLoginUser 用户登录用来解析账号密码
@@ -105,4 +101,49 @@ func (u *UserDao) GetPage(pageSize int, pageIndex int) ([]UserDao, int, error) {
 	}
 	table.Where("user.deleted_at IS NULL").Count(&count)
 	return doc, count, nil
+}
+
+// 获取用户数据
+func (u *UserDao) Get() (user UserDao, err error) {
+
+	table := model.DB.Table("user").Select([]string{"user.*", "role.role_name"})
+	table = table.Joins("left join role on user.role_id=role.role_id")
+	if u.UserId != 0 {
+		table = table.Where("user_id = ?", u.UserId)
+	}
+
+	if u.Username != "" {
+		table = table.Where("username = ?", u.Username)
+	}
+
+	if u.Password != "" {
+		table = table.Where("password = ?", u.Password)
+	}
+
+	if u.RoleId != 0 {
+		table = table.Where("role_id = ?", u.RoleId)
+	}
+
+	if err = table.First(&user).Error; err != nil {
+		return
+	}
+	return
+}
+
+//Insert 添加用户
+func (u UserDao) Insert() (id int, err error) {
+	// check 用户名
+	var count int
+	model.DB.Table("user").Where("username = ?", u.Username).Count(&count)
+	if count > 0 {
+		err = errors.New("账户已存在！")
+		return
+	}
+
+	//添加数据
+	if err = model.DB.Table("user").Create(&u).Error; err != nil {
+		return
+	}
+	id = u.UserId
+	return
 }

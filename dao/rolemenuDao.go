@@ -6,19 +6,14 @@ import (
 	"iMonitor/pkg/casbin"
 )
 
-// RolemenuDao 对role模型进行增删查改的单例工具
+// RolemenuDao 对role模型进行增删查改的
 type RolemenuDao struct {
 	model.RoleMenu
 }
 
-var rolemenuDao *RolemenuDao
-
-// RoleMenu 得到dao-rolemenu 单例工具
+// RoleMenu 
 func RoleMenu() *RolemenuDao {
-	if rolemenuDao == nil {
-		rolemenuDao = &RolemenuDao{}
-	}
-	return rolemenuDao
+	return &RolemenuDao{}
 }
 
 // Insert 插入角色对应的菜单

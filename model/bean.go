@@ -12,16 +12,16 @@ type Model struct {
 // User 用户
 type User struct {
 	UserId    int    `gorm:"primary_key;AUTO_INCREMENT"  json:"userId"`
-	Nickname  string `gorm:"type:varchar(128)" json:"nickname"`
-	Phone     string `gorm:"type:varchar(11)" json:"phone"`
-	RoleId    int    `gorm:"type:int(11)" json:"roleId"`
-	Username  string `gorm:"type:varchar(64)" json:"username"`
-	Password  string `gorm:"type:varchar(128)" json:"-"`
+	Nickname  string `gorm:"type:varchar(128)" json:"nickname" binding:"required"`
+	Phone     string `gorm:"type:varchar(11)" json:"phone" binding:"required"`
+	RoleId    int    `gorm:"type:int(11)" json:"roleId" binding:"required"`
+	Username  string `gorm:"type:varchar(64)" json:"username" binding:"required"`
+	Password  string `gorm:"type:varchar(128)" json:"-" binding:"required"`
 	Salt      string `gorm:"type:varchar(255)" json:"salt"`
 	Avatar    string `gorm:"type:varchar(255)" json:"avatar"`
 	Sex       string `gorm:"type:varchar(255)" json:"sex"`
-	Email     string `gorm:"type:varchar(128)" json:"email"`
-	Status    string `gorm:"type:int(1);" json:"status"`
+	Email     string `gorm:"type:varchar(128)" json:"email" binding:"required"`
+	Status    string `gorm:"type:int(1);DEFAULT:1;" json:"status" binding:"required"`
 	CreateBy  string `gorm:"type:varchar(128)" json:"createBy"`
 	UpdateBy  string `gorm:"type:varchar(128)" json:"updateBy"`
 	Remark    string `gorm:"type:varchar(255)" json:"remark"`
@@ -33,42 +33,41 @@ type User struct {
 //Role 角色
 type Role struct {
 	RoleId    int    `json:"roleId" gorm:"primary_key;AUTO_INCREMENT"`
-	RoleName  string `json:"roleName" gorm:"type:varchar(128);"`
-	Status    string `json:"status" gorm:"type:int(1);"`
-	RoleKey   string `json:"roleKey" gorm:"type:varchar(128);"`
-	RoleSort  int    `json:"roleSort" gorm:"type:int(4);"`
+	RoleName  string `json:"roleName" gorm:"type:varchar(128);" binding:"required" `
+	Status    string `json:"status" gorm:"type:int(1);DEFAULT:1;" binding:"required"`
+	RoleKey   string `json:"roleKey" gorm:"type:varchar(128);" binding:"required"`
+	RoleSort  int    `json:"roleSort" gorm:"type:int(4);" binding:"required"`
 	DataScope string `json:"dataScope" gorm:"type:varchar(128);"`
 	CreateBy  string `json:"createBy" gorm:"type:varchar(128);"`
 	UpdateBy  string `json:"updateBy" gorm:"type:varchar(128);"`
 	Remark    string `json:"remark" gorm:"type:varchar(255);"`
 	Params    string `json:"params" gorm:"-"`
-	MenuIds   []int  `json:"menuIds" gorm:"-"`
+	MenuIds   []int  `json:"menuIds" gorm:"-" binding:"required"`
 	Model
 }
 
 type Menu struct {
 	MenuId     int    `json:"menuId" gorm:"primary_key;AUTO_INCREMENT" `
-	Name       string `json:"name" gorm:"type:varchar(11);" `
-	Title      string `json:"title" gorm:"type:varchar(64);"`
+	Name       string `json:"name" gorm:"type:varchar(11);"`
+	Title      string `json:"title" gorm:"type:varchar(64);" binding:"required"`
 	Icon       string `json:"icon" gorm:"type:varchar(128);"`
 	Path       string `json:"path" gorm:"type:varchar(128);"`
 	Paths      string `json:"paths" gorm:"type:varchar(128);"`
-	MenuType   string `json:"menuType" gorm:"type:varchar(1);"`
+	MenuType   string `json:"menuType" gorm:"type:varchar(1);" binding:"required"`
 	Action     string `json:"action" gorm:"type:varchar(16);"`
 	Permission string `json:"permission" gorm:"type:varchar(32);"`
 	ParentId   int    `json:"parentId" gorm:"type:int(11);"`
 	NoCache    bool   `json:"noCache" gorm:"type:char(1);"`
 	Breadcrumb string `json:"breadcrumb" gorm:"type:varchar(255);"`
 	Component  string `json:"component" gorm:"type:varchar(255);"`
-	Sort       int    `json:"sort" gorm:"type:int(4);"`
-	Visible    string `json:"visible" gorm:"type:char(1);"`
+	Sort       int    `json:"sort" gorm:"type:int(4);" binding:"required"`
+	Visible    string `json:"visible" gorm:"type:char(1);DEFAULT:'1';"`
 	CreateBy   string `json:"createBy" gorm:"type:varchar(128);"`
 	UpdateBy   string `json:"updateBy" gorm:"type:varchar(128);"`
 	IsFrame    string `json:"isFrame" gorm:"type:int(1);DEFAULT:0;"`
 	Params     string `json:"params" gorm:"-"`
-	// RoleId     int    `gorm:"-"`
-	Routes   []Menu `json:"routes" gorm:"-"`
-	IsSelect bool   `json:"is_select" gorm:"-"`
+	Routes     []Menu `json:"routes" gorm:"-"`
+	IsSelect   bool   `json:"is_select" gorm:"-"`
 	Model
 }
 

@@ -50,7 +50,6 @@ definitions:
       permission:
         type: string
       routes:
-        description: RoleId     int    `gorm:"-"`
         items:
           $ref: '#/definitions/model.Menu'
         type: array
@@ -64,6 +63,10 @@ definitions:
         type: string
       visible:
         type: string
+    required:
+    - menuType
+    - sort
+    - title
     type: object
   model.Role:
     properties:
@@ -97,6 +100,58 @@ definitions:
         type: string
       updatedAt:
         type: string
+    required:
+    - menuIds
+    - roleKey
+    - roleName
+    - roleSort
+    - status
+    type: object
+  model.User:
+    properties:
+      avatar:
+        type: string
+      createBy:
+        type: string
+      createdAt:
+        type: string
+      dataScope:
+        type: string
+      deletedAt:
+        type: string
+      email:
+        type: string
+      nickname:
+        type: string
+      params:
+        type: string
+      phone:
+        type: string
+      remark:
+        type: string
+      roleId:
+        type: integer
+      salt:
+        type: string
+      sex:
+        type: string
+      status:
+        type: string
+      updateBy:
+        type: string
+      updatedAt:
+        type: string
+      userId:
+        type: integer
+      username:
+        type: string
+    required:
+    - email
+    - nickname
+    - phone
+    - roleId
+    - status
+    - username
     type: object
   response.Page:
     properties:
@@ -209,7 +264,7 @@ paths:
         in: path
         name: menuId
         required: true
-        type: integer
+        type: string
       responses:
         "200":
           description: '{"code": -1, "message": "删除失败"}'
@@ -378,6 +433,43 @@ paths:
       summary: 角色列表数据
       tags:
       - Role
+  /api/v1/user:
+    post:
+      consumes:
+      - application/json
+      description: 获取JSON
+      parameters:
+      - description: 用户数据
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/model.User'
+      responses:
+        "200":
+          description: '{"code": -1, "message": "添加失败"}'
+          schema:
+            type: string
+      summary: 创建用户
+      tags:
+      - User
+  /api/v1/user/{userId}:
+    get:
+      description: 获取JSON
+      parameters:
+      - description: userId
+        in: path
+        name: userId
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: '{"code": -1, "message": "抱歉未找到相关信息"}'
+          schema:
+            type: string
+      summary: 获取用户
+      tags:
+      - User
   /api/v1/userlist:
     get:
       description: 获取JSON

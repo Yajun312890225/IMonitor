@@ -5,19 +5,14 @@ import (
 	"iMonitor/model"
 )
 
-// RoleDao 对role模型进行增删查改的单例工具
+// RoleDao 对role模型进行增删查改
 type RoleDao struct {
 	model.Role
 }
 
-var roleDao *RoleDao
-
-// Role 得到dao-role 单例工具
+// Role
 func Role() *RoleDao {
-	if roleDao == nil {
-		roleDao = &RoleDao{}
-	}
-	return roleDao
+	return &RoleDao{}
 }
 
 type MenuIdList struct {
@@ -118,6 +113,20 @@ func (r *RoleDao) Update(id int) (update RoleDao, err error) {
 // BatchDelete 批量删除
 func (r *RoleDao) BatchDelete(id []int) (err error) {
 	if err = model.DB.Table("role").Where("role_id in (?)", id).Delete(&RoleDao{}).Error; err != nil {
+		return
+	}
+	return
+}
+
+func (r *RoleDao) GetList() (role []RoleDao, err error) {
+	table := model.DB.Table("role")
+	if r.RoleId != 0 {
+		table = table.Where("role_id = ?", r.RoleId)
+	}
+	if r.RoleName != "" {
+		table = table.Where("role_name = ?", r.RoleName)
+	}
+	if err = table.Order("role_sort").Find(&role).Error; err != nil {
 		return
 	}
 	return

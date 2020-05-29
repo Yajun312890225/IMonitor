@@ -14,6 +14,7 @@ import (
 
 // InitRouter 配置路由
 func InitRouter() *gin.Engine {
+	gin.SetMode(os.Getenv("GIN_MODE"))
 	r := gin.Default()
 	// 中间件, 顺序不能改
 	r.Use(middleware.Session(os.Getenv("SESSION_SECRET")))
@@ -46,12 +47,12 @@ func InitRouter() *gin.Engine {
 		v1.GET("/menu/:menuId", handler.GetMenu)
 		v1.POST("/menu", handler.InsertMenu)
 		v1.PUT("/menu", handler.UpdateMenu)
-		v1.DELETE("/menu/:id", handler.DeleteMenu)
+		v1.DELETE("/menu/:menuId", handler.DeleteMenu)
 		v1.GET("/menurole", handler.GetMenuRole)
 
 		v1.GET("/userlist", handler.GetUserList)
-		// v1.GET("/user/:userId", handler.GetUser)
-		// v1.POST("/user", handler.InsertUser)
+		v1.GET("/user/:userId", handler.GetUser)
+		v1.POST("/user", handler.InsertUser)
 		// v1.PUT("/user", handler.UpdateUser)
 		// v1.DELETE("/user/:userId", handler.DeleteUser)
 

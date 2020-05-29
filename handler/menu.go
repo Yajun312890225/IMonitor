@@ -2,6 +2,7 @@ package handler
 
 import (
 	"iMonitor/dao"
+	"iMonitor/model"
 	"iMonitor/response"
 	"net/http"
 	"strconv"
@@ -54,7 +55,9 @@ func GetMenuList(c *gin.Context) {
 // @Router /api/v1/menu [post]
 func InsertMenu(c *gin.Context) {
 	data := dao.Menu()
-	err := c.ShouldBind(&data)
+	menu := model.Menu{}
+	err := c.ShouldBind(&menu)
+	data.Menu = menu
 	if err != nil {
 		logrus.Info(err)
 		c.JSON(http.StatusOK, response.Res{
@@ -97,7 +100,9 @@ func InsertMenu(c *gin.Context) {
 // @Router /api/v1/menu [put]
 func UpdateMenu(c *gin.Context) {
 	data := dao.Menu()
-	err := c.ShouldBind(&data)
+	menu := model.Menu{}
+	err := c.ShouldBind(&menu)
+	data.Menu = menu
 	logrus.Info(data.MenuId)
 	if err != nil {
 		logrus.Info(err)
@@ -130,7 +135,7 @@ func UpdateMenu(c *gin.Context) {
 // @Summary 删除菜单
 // @Description 删除数据
 // @Tags Menu
-// @Param menuId path int true "menuId"
+// @Param menuId path string true "menuId"
 // @Success 200 {string} string	"{"code": 200, "message": "删除成功"}"
 // @Success 200 {string} string	"{"code": -1, "message": "删除失败"}"
 // @Router /api/v1/menu/{menuId} [delete]

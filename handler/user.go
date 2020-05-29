@@ -131,3 +131,73 @@ func GetUserList(c *gin.Context) {
 		Msg: "",
 	})
 }
+
+// GetUser 获取用户
+// @Summary 获取用户
+// @Description 获取JSON
+// @Tags User
+// @Param userId path int true "userId"
+// @Success 200 {string} string "{"code": 200, "data": [...]}"
+// @Success 200 {string} string "{"code": -1, "message": "抱歉未找到相关信息"}"
+// @Router /api/v1/user/{userId} [get]
+func GetUser(c *gin.Context) {
+	data := dao.User()
+	data.UserId, _ = strconv.Atoi(c.Param("userId"))
+	result, err := data.Get()
+	if err != nil {
+		logrus.Debug(err)
+	}
+	roles, err := dao.Role().GetList()
+
+	roleIds := make([]int, 0)
+	roleIds = append(roleIds, result.RoleId)
+	c.JSON(http.StatusOK, gin.H{
+		"code":    0,
+		"data":    result,
+		"roleIds": roleIds,
+		"roles":   roles,
+	})
+}
+
+// InsertUser 创建用户
+// @Summary 创建用户
+// @Description 获取JSON
+// @Tags User
+// @Accept  application/json
+// @Product application/json
+// @Param data body model.User true "用户数据"
+// @Success 200 {string} string	"{"code": 200, "message": "添加成功"}"
+// @Success 200 {string} string	"{"code": -1, "message": "添加失败"}"
+// @Router /api/v1/user [post]
+func InsertUser(c *gin.Context) {
+
+	data := dao.User()
+	user := model.User{}
+	if err := c.ShouldBind(&user); err != nil {
+		c.JSON(http.StatusOK, response.Res{
+			Code:  response.CodeParamErr,
+			Msg:   response.CodeErrMsg[response.CodeParamErr],
+			Error: err.Error(),
+		})
+		return
+	}
+	data.User = user
+	session := sessions.Default(c)
+	user.CreateBy = strconv.Itoa(session.Get("userid").(int))
+	id, err := data.Insert()
+	if err != nil {
+		logrus.Debug(err)
+		c.JSON(http.StatusOK, response.Res{
+			Code:  response.CodeParamErr,
+			Msg:   response.CodeErrMsg[response.CodeParamErr],
+			Error: err.Error(),
+		})
+		return
+	}
+	c.JSON(http.StatusOK, response.Res{
+		Code: response.CodeSuccess,
+		Data: id,
+		Msg:  "",
+	})
+
+}

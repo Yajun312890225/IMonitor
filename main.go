@@ -4,11 +4,12 @@ import (
 	"iMonitor/conf"
 	_ "iMonitor/docs"
 	"iMonitor/router"
+	"os"
 )
 
 func main() {
 	conf.Init()
 
 	r := router.InitRouter()
-	r.Run(":9528")
+	r.Run(os.Getenv("PORT"))
 }

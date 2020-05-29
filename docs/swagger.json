@@ -140,7 +140,7 @@
                 "summary": "删除菜单",
                 "parameters": [
                     {
-                        "type": "integer",
+                        "type": "string",
                         "description": "menuId",
                         "name": "menuId",
                         "in": "path",
@@ -380,6 +380,63 @@
                 }
             }
         },
+        "/api/v1/user": {
+            "post": {
+                "description": "获取JSON",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "summary": "创建用户",
+                "parameters": [
+                    {
+                        "description": "用户数据",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.User"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"code\": -1, \"message\": \"添加失败\"}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/user/{userId}": {
+            "get": {
+                "description": "获取JSON",
+                "tags": [
+                    "User"
+                ],
+                "summary": "获取用户",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "userId",
+                        "name": "userId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"code\": -1, \"message\": \"抱歉未找到相关信息\"}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/userlist": {
             "get": {
                 "description": "获取JSON",
@@ -450,6 +507,11 @@
         },
         "model.Menu": {
             "type": "object",
+            "required": [
+                "menuType",
+                "sort",
+                "title"
+            ],
             "properties": {
                 "action": {
                     "type": "string"
@@ -506,7 +568,6 @@
                     "type": "string"
                 },
                 "routes": {
-                    "description": "RoleId     int    `gorm:\"-\"`",
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/model.Menu"
@@ -531,6 +592,13 @@
         },
         "model.Role": {
             "type": "object",
+            "required": [
+                "menuIds",
+                "roleKey",
+                "roleName",
+                "roleSort",
+                "status"
+            ],
             "properties": {
                 "createBy": {
                     "type": "string"
@@ -575,6 +643,73 @@
                     "type": "string"
                 },
                 "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.User": {
+            "type": "object",
+            "required": [
+                "email",
+                "nickname",
+                "phone",
+                "roleId",
+                "status",
+                "username"
+            ],
+            "properties": {
+                "avatar": {
+                    "type": "string"
+                },
+                "createBy": {
+                    "type": "string"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "dataScope": {
+                    "type": "string"
+                },
+                "deletedAt": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "nickname": {
+                    "type": "string"
+                },
+                "params": {
+                    "type": "string"
+                },
+                "phone": {
+                    "type": "string"
+                },
+                "remark": {
+                    "type": "string"
+                },
+                "roleId": {
+                    "type": "integer"
+                },
+                "salt": {
+                    "type": "string"
+                },
+                "sex": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "updateBy": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                },
+                "userId": {
+                    "type": "integer"
+                },
+                "username": {
                     "type": "string"
                 }
             }

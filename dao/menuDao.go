@@ -6,19 +6,14 @@ import (
 	"strconv"
 )
 
-// MenuDao 对menu模型进行增删查改的单例工具
+// MenuDao 对menu模型进行增删查改
 type MenuDao struct {
 	model.Menu
 }
 
-var menuDao *MenuDao
-
-// Menu 得到dao-menu 单例工具
+// Menu
 func Menu() *MenuDao {
-	if menuDao == nil {
-		menuDao = &MenuDao{}
-	}
-	return menuDao
+	return &MenuDao{}
 }
 
 // GetAllMenu 获取所有Menu
@@ -62,6 +57,7 @@ func RecursionMenu(menulist *[]MenuDao, menu model.Menu) model.Menu {
 		mi.Breadcrumb = list[j].Breadcrumb
 		mi.Component = list[j].Component
 		mi.Sort = list[j].Sort
+		mi.IsFrame = list[j].IsFrame
 		mi.Visible = list[j].Visible
 		mi.CreatedAt = list[j].CreatedAt
 		mi.UpdatedAt = list[j].UpdatedAt
