@@ -145,13 +145,6 @@ definitions:
         type: integer
       username:
         type: string
-    required:
-    - email
-    - nickname
-    - phone
-    - roleId
-    - status
-    - username
     type: object
   response.Page:
     properties:
@@ -190,6 +183,17 @@ info:
   contact: {}
   license: {}
 paths:
+  /api/v1/getinfo:
+    get:
+      description: 获取JSON
+      responses:
+        "200":
+          description: '{"code": -1, "message": "抱歉未找到相关信息"}'
+          schema:
+            type: string
+      summary: 获取权限信息
+      tags:
+      - Info
   /api/v1/login:
     post:
       parameters:
@@ -453,7 +457,42 @@ paths:
       summary: 创建用户
       tags:
       - User
+    put:
+      consumes:
+      - application/json
+      description: 获取JSON
+      parameters:
+      - description: body
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/model.User'
+      responses:
+        "200":
+          description: '{"code": -1, "message": "修改失败"}'
+          schema:
+            type: string
+      summary: 修改用户数据
+      tags:
+      - User
   /api/v1/user/{userId}:
+    delete:
+      description: 删除数据
+      parameters:
+      - description: userId
+        in: path
+        name: userId
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: '{"code": -1, "message": "删除失败"}'
+          schema:
+            type: string
+      summary: 删除用户数据
+      tags:
+      - User
     get:
       description: 获取JSON
       parameters:

@@ -4,6 +4,7 @@ import (
 	"errors"
 	"iMonitor/model"
 	"iMonitor/response"
+	"time"
 )
 
 // UserDao 对user模型进行增删查改
@@ -24,8 +25,25 @@ type ReqLoginUser struct {
 
 // ReqAddUser 管理员新增用户
 type ReqAddUser struct {
-	Username string `form:"username" binding:"required"`
-	Nickname string `form:"nickname" binding:"required"`
+	UserId    int        `gorm:"primary_key;AUTO_INCREMENT"  json:"userId"`
+	Nickname  string     `gorm:"type:varchar(128)" json:"nickname" binding:"required"`
+	Phone     string     `gorm:"type:varchar(11)" json:"phone" `
+	RoleId    int        `gorm:"type:int(11)" json:"roleId" binding:"required"`
+	Username  string     `gorm:"type:varchar(64)" json:"username" binding:"required"`
+	Password  string     `gorm:"type:varchar(128)" json:"-"`
+	Salt      string     `gorm:"type:varchar(255)" json:"salt"`
+	Avatar    string     `gorm:"type:varchar(255)" json:"avatar"`
+	Sex       string     `gorm:"type:varchar(255)" json:"sex"`
+	Email     string     `gorm:"type:varchar(128)" json:"email"`
+	Status    string     `gorm:"type:int(1);DEFAULT:1;" json:"status" `
+	CreateBy  string     `gorm:"type:varchar(128)" json:"createBy"`
+	UpdateBy  string     `gorm:"type:varchar(128)" json:"updateBy"`
+	Remark    string     `gorm:"type:varchar(255)" json:"remark"`
+	DataScope string     `gorm:"-" json:"dataScope"`
+	Params    string     `gorm:"-" json:"params"`
+	CreatedAt time.Time  `json:"createdAt"`
+	UpdatedAt time.Time  `json:"updatedAt"`
+	DeletedAt *time.Time `json:"deletedAt"`
 }
 
 // Login 去数据库验证登录
@@ -46,27 +64,6 @@ func (reqLoginUser *ReqLoginUser) Login(block func(*model.User)) response.Res {
 	// 登录成功，清楚之前储存的userId，重新设置userId
 	block(&user)
 
-	return response.Res{
-		Code: response.CodeSuccess,
-		Data: user,
-	}
-}
-
-// RegistUser 添加新用户
-func (addUser *ReqAddUser) RegistUser() response.Res {
-	var user = model.User{
-		Username: addUser.Username,
-		Password: "111111", // 默认密码
-		Nickname: addUser.Nickname,
-		Status:   "1", // 默认普通用户
-	}
-	if err := model.DB.Create(&user).Error; err != nil {
-		return response.Res{
-			Code:  response.CodeParamErr,
-			Msg:   response.CodeErrMsg[response.CodeParamErr],
-			Error: err.Error(),
-		}
-	}
 	return response.Res{
 		Code: response.CodeSuccess,
 		Data: user,
@@ -131,19 +128,39 @@ func (u *UserDao) Get() (user UserDao, err error) {
 }
 
 //Insert 添加用户
-func (u UserDao) Insert() (id int, err error) {
-	// check 用户名
+func (u *ReqAddUser) Insert() (id int, err error) {
 	var count int
 	model.DB.Table("user").Where("username = ?", u.Username).Count(&count)
 	if count > 0 {
 		err = errors.New("账户已存在！")
 		return
 	}
-
-	//添加数据
 	if err = model.DB.Table("user").Create(&u).Error; err != nil {
 		return
 	}
 	id = u.UserId
+	return
+}
+
+//Update 修改用户
+func (u *UserDao) Update(id int) (update UserDao, err error) {
+	if err = model.DB.Table("user").First(&update, id).Error; err != nil {
+		return
+	}
+	if u.RoleId == 0 {
+		u.RoleId = update.RoleId
+	}
+	if err = model.DB.Table("user").Model(&update).Updates(&u).Error; err != nil {
+		return
+	}
+	return
+}
+
+//BatchDelete 批量删除用户
+func (u *UserDao) BatchDelete(id []int) (Result bool, err error) {
+	if err = model.DB.Table("user").Where("user_id in (?)", id).Delete(&model.User{}).Error; err != nil {
+		return
+	}
+	Result = true
 	return
 }

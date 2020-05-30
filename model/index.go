@@ -1,6 +1,7 @@
 package model
 
 import (
+	"os"
 	"time"
 
 	"github.com/jinzhu/gorm"
@@ -14,7 +15,12 @@ var DB *gorm.DB
 // Database 初始化数据库引擎
 func Database(connString string) {
 	db, err := gorm.Open("mysql", connString)
-	db.LogMode(true)
+	db.LogMode(func(mode string) bool {
+		if mode == "debug" {
+			return true
+		}
+		return false
+	}(os.Getenv("DB_MODE")))
 	db.SingularTable(true)
 	if err != nil {
 		log.Info(err)

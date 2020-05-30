@@ -3,6 +3,7 @@ package handler
 import (
 	"net/http"
 	"strconv"
+	"strings"
 
 	"iMonitor/dao"
 	"iMonitor/model"
@@ -59,7 +60,7 @@ func Login(c *gin.Context) {
 				logrus.Info(err)
 			}
 			session.Set("rolekey", role.RoleKey)
-
+			session.Set("roleId", role.RoleId)
 			session.Save()
 		})
 		c.JSON(http.StatusOK, res)
@@ -171,8 +172,7 @@ func GetUser(c *gin.Context) {
 // @Router /api/v1/user [post]
 func InsertUser(c *gin.Context) {
 
-	data := dao.User()
-	user := model.User{}
+	user := dao.ReqAddUser{}
 	if err := c.ShouldBind(&user); err != nil {
 		c.JSON(http.StatusOK, response.Res{
 			Code:  response.CodeParamErr,
@@ -181,10 +181,9 @@ func InsertUser(c *gin.Context) {
 		})
 		return
 	}
-	data.User = user
 	session := sessions.Default(c)
 	user.CreateBy = strconv.Itoa(session.Get("userid").(int))
-	id, err := data.Insert()
+	id, err := user.Insert()
 	if err != nil {
 		logrus.Debug(err)
 		c.JSON(http.StatusOK, response.Res{
@@ -200,4 +199,81 @@ func InsertUser(c *gin.Context) {
 		Msg:  "",
 	})
 
+}
+
+// UpdateUser 修改用户数据
+// @Summary 修改用户数据
+// @Description 获取JSON
+// @Tags User
+// @Accept  application/json
+// @Product application/json
+// @Param data body model.User true "body"
+// @Success 200 {string} string	"{"code": 200, "message": "修改成功"}"
+// @Success 200 {string} string	"{"code": -1, "message": "修改失败"}"
+// @Router /api/v1/user [put]
+func UpdateUser(c *gin.Context) {
+	data := dao.User()
+	user := model.User{}
+	if err := c.ShouldBind(&user); err != nil {
+		c.JSON(http.StatusOK, response.Res{
+			Code:  response.CodeParamErr,
+			Msg:   response.CodeErrMsg[response.CodeParamErr],
+			Error: err.Error(),
+		})
+		return
+	}
+	session := sessions.Default(c)
+	data.UpdateBy = strconv.Itoa(session.Get("userid").(int))
+	result, err := data.Update(data.RoleId)
+	if err != nil {
+		logrus.Debug(err)
+		c.JSON(http.StatusOK, response.Res{
+			Code:  response.CodeParamErr,
+			Msg:   response.CodeErrMsg[response.CodeParamErr],
+			Error: err.Error(),
+		})
+		return
+	}
+	c.JSON(http.StatusOK, response.Res{
+		Code: response.CodeSuccess,
+		Data: result,
+		Msg:  "",
+	})
+}
+
+// DeleteUser 删除用户数据
+// @Summary 删除用户数据
+// @Description 删除数据
+// @Tags User
+// @Param userId path int true "userId"
+// @Success 200 {string} string	"{"code": 200, "message": "删除成功"}"
+// @Success 200 {string} string	"{"code": -1, "message": "删除失败"}"
+// @Router /api/v1/user/{userId} [delete]
+func DeleteUser(c *gin.Context) {
+	data := dao.User()
+	userId := func(keys string) (IDS []int) {
+		ids := strings.Split(keys, ",")
+		for i := 0; i < len(ids); i++ {
+			ID, _ := strconv.Atoi(ids[i])
+			IDS = append(IDS, ID)
+		}
+		return
+	}(c.Param("userId"))
+
+	session := sessions.Default(c)
+	data.UpdateBy = strconv.Itoa(session.Get("userid").(int))
+	result, err := data.BatchDelete(userId)
+	if err != nil {
+		c.JSON(http.StatusOK, response.Res{
+			Code:  response.CodeParamErr,
+			Msg:   response.CodeErrMsg[response.CodeParamErr],
+			Error: err.Error(),
+		})
+		return
+	}
+	c.JSON(http.StatusOK, response.Res{
+		Code: response.CodeSuccess,
+		Data: result,
+		Msg:  "删除成功",
+	})
 }

@@ -37,6 +37,8 @@ func InitRouter() *gin.Engine {
 		v1.GET("/query", handler.Query)
 		v1.POST("/logout", handler.Logout)
 
+		v1.GET("/getinfo", handler.GetInfo)
+
 		v1.GET("/rolelist", handler.GetRoleList)
 		v1.GET("/role/:roleId", handler.GetRole)
 		v1.POST("/role", handler.InsertRole)
@@ -53,8 +55,8 @@ func InitRouter() *gin.Engine {
 		v1.GET("/userlist", handler.GetUserList)
 		v1.GET("/user/:userId", handler.GetUser)
 		v1.POST("/user", handler.InsertUser)
-		// v1.PUT("/user", handler.UpdateUser)
-		// v1.DELETE("/user/:userId", handler.DeleteUser)
+		v1.PUT("/user", handler.UpdateUser)
+		v1.DELETE("/user/:userId", handler.DeleteUser)
 
 	}
 	return r

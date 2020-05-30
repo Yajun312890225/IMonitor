@@ -11,7 +11,7 @@ type RolemenuDao struct {
 	model.RoleMenu
 }
 
-// RoleMenu 
+// RoleMenu
 func RoleMenu() *RolemenuDao {
 	return &RolemenuDao{}
 }
@@ -83,4 +83,22 @@ func (rm *RolemenuDao) BatchDeleteRoleMenu(roleIds []int) error {
 		}
 	}
 	return nil
+}
+
+// GetPermis 获取权限
+func (rm *RolemenuDao) GetPermis() ([]string, error) {
+	var r []model.Menu
+	table := model.DB.Select("menu.permission").Table("menu").Joins("left join role_menu on menu.menu_id = role_menu.menu_id")
+
+	table = table.Where("role_id = ?", rm.RoleId)
+
+	table = table.Where("menu.menu_type in('F','C')")
+	if err := table.Find(&r).Error; err != nil {
+		return nil, err
+	}
+	var list []string
+	for i := 0; i < len(r); i++ {
+		list = append(list, r[i].Permission)
+	}
+	return list, nil
 }

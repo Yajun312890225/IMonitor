@@ -12,16 +12,16 @@ type Model struct {
 // User 用户
 type User struct {
 	UserId    int    `gorm:"primary_key;AUTO_INCREMENT"  json:"userId"`
-	Nickname  string `gorm:"type:varchar(128)" json:"nickname" binding:"required"`
-	Phone     string `gorm:"type:varchar(11)" json:"phone" binding:"required"`
-	RoleId    int    `gorm:"type:int(11)" json:"roleId" binding:"required"`
-	Username  string `gorm:"type:varchar(64)" json:"username" binding:"required"`
-	Password  string `gorm:"type:varchar(128)" json:"-" binding:"required"`
+	Nickname  string `gorm:"type:varchar(128)" json:"nickname"`
+	Phone     string `gorm:"type:varchar(11)" json:"phone" `
+	RoleId    int    `gorm:"type:int(11)" json:"roleId" `
+	Username  string `gorm:"type:varchar(64)" json:"username" `
+	Password  string `gorm:"type:varchar(128)" json:"-"`
 	Salt      string `gorm:"type:varchar(255)" json:"salt"`
 	Avatar    string `gorm:"type:varchar(255)" json:"avatar"`
 	Sex       string `gorm:"type:varchar(255)" json:"sex"`
-	Email     string `gorm:"type:varchar(128)" json:"email" binding:"required"`
-	Status    string `gorm:"type:int(1);DEFAULT:1;" json:"status" binding:"required"`
+	Email     string `gorm:"type:varchar(128)" json:"email" `
+	Status    string `gorm:"type:int(1);DEFAULT:1;" json:"status" `
 	CreateBy  string `gorm:"type:varchar(128)" json:"createBy"`
 	UpdateBy  string `gorm:"type:varchar(128)" json:"updateBy"`
 	Remark    string `gorm:"type:varchar(255)" json:"remark"`

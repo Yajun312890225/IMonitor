@@ -5,6 +5,23 @@
         "license": {}
     },
     "paths": {
+        "/api/v1/getinfo": {
+            "get": {
+                "description": "获取JSON",
+                "tags": [
+                    "Info"
+                ],
+                "summary": "获取权限信息",
+                "responses": {
+                    "200": {
+                        "description": "{\"code\": -1, \"message\": \"抱歉未找到相关信息\"}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/login": {
             "post": {
                 "tags": [
@@ -381,6 +398,35 @@
             }
         },
         "/api/v1/user": {
+            "put": {
+                "description": "获取JSON",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "summary": "修改用户数据",
+                "parameters": [
+                    {
+                        "description": "body",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.User"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"code\": -1, \"message\": \"修改失败\"}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
             "post": {
                 "description": "获取JSON",
                 "consumes": [
@@ -430,6 +476,30 @@
                 "responses": {
                     "200": {
                         "description": "{\"code\": -1, \"message\": \"抱歉未找到相关信息\"}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "删除数据",
+                "tags": [
+                    "User"
+                ],
+                "summary": "删除用户数据",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "userId",
+                        "name": "userId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"code\": -1, \"message\": \"删除失败\"}",
                         "schema": {
                             "type": "string"
                         }
@@ -649,14 +719,6 @@
         },
         "model.User": {
             "type": "object",
-            "required": [
-                "email",
-                "nickname",
-                "phone",
-                "roleId",
-                "status",
-                "username"
-            ],
             "properties": {
                 "avatar": {
                     "type": "string"
