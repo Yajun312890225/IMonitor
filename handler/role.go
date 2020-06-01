@@ -36,7 +36,7 @@ func GetRoleList(c *gin.Context) {
 	if index := c.Request.FormValue("pageIndex"); index != "" {
 		pageIndex, _ = strconv.Atoi(index)
 	}
-	data.RoleKey = c.Request.FormValue("roleKey")
+	data.RoleKey = c.Request.FormValue("rolekey")
 	data.RoleName = c.Request.FormValue("roleName")
 	data.Status = c.Request.FormValue("status")
 	result, count, err := data.GetPage(pageSize, pageIndex)

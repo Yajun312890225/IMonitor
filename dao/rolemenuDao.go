@@ -34,7 +34,9 @@ func (rm *RolemenuDao) Insert(roleId int, menuId []int) error {
 		} else {
 			sql += fmt.Sprintf("(%d,%d,'%s'),", role.RoleId, menu[i].MenuId, role.RoleKey)
 		}
-		cas.Enforce.AddPolicy(role.RoleKey, menu[i].Path, menu[i].Action)
+		if menu[i].MenuType == "A" {
+			cas.Enforce.AddPolicy(role.RoleKey, menu[i].Path, menu[i].Action)
+		}
 	}
 	model.DB.Exec(sql)
 	return nil

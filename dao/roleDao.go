@@ -74,11 +74,11 @@ func (r *RoleDao) GetRoleMeunId() ([]int, error) {
 
 // Insert 创建角色
 func (r *RoleDao) Insert() (id int, err error) {
-	i := 0
-	model.DB.Table("role").Where("role_name=? or role_key = ?", r.RoleName, r.RoleKey).Count(&i)
-	if i > 0 {
-		return 0, errors.New("角色名称或者角色标识已经存在！")
-	}
+	// i := 0
+	// model.DB.Table("role").Where("role_name=? or role_key = ?", r.RoleName, r.RoleKey).Count(&i)
+	// if i > 0 {
+	// 	return 0, errors.New("角色名称或者角色标识已经存在！")
+	// }
 	r.UpdateBy = ""
 	r.RoleId = 0
 	result := model.DB.Table("role").Create(&r)

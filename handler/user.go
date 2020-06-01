@@ -166,7 +166,7 @@ func GetUser(c *gin.Context) {
 // @Tags User
 // @Accept  application/json
 // @Product application/json
-// @Param data body model.User true "用户数据"
+// @Param data body dao.ReqAddUser true "用户数据"
 // @Success 200 {string} string	"{"code": 200, "message": "添加成功"}"
 // @Success 200 {string} string	"{"code": -1, "message": "添加失败"}"
 // @Router /api/v1/user [post]
