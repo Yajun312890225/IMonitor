@@ -17,6 +17,8 @@ definitions:
         type: string
       params:
         type: string
+      password:
+        type: string
       phone:
         type: string
       remark:
@@ -39,6 +41,7 @@ definitions:
         type: string
     required:
     - nickname
+    - password
     - roleId
     - username
     type: object

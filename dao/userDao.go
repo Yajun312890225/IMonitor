@@ -30,7 +30,7 @@ type ReqAddUser struct {
 	Phone     string     `gorm:"type:varchar(11)" json:"phone" `
 	RoleId    int        `gorm:"type:int(11)" json:"roleId" binding:"required"`
 	Username  string     `gorm:"type:varchar(64)" json:"username" binding:"required"`
-	Password  string     `gorm:"type:varchar(128)" json:"-"`
+	Password  string     `gorm:"type:varchar(128)" json:"password" binding:"required"`
 	Salt      string     `gorm:"type:varchar(255)" json:"salt"`
 	Avatar    string     `gorm:"type:varchar(255)" json:"avatar"`
 	Sex       string     `gorm:"type:varchar(255)" json:"sex"`

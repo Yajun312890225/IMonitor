@@ -31,11 +31,11 @@ func InitRouter() *gin.Engine {
 	{
 
 		v1.POST("/login", handler.Login)
+		v1.POST("/logout", handler.Logout)
 		v1.Use(middleware.AuthRequired())
 		v1.Use(middleware.AuthCheckRole())
 
 		v1.GET("/query", handler.Query)
-		v1.POST("/logout", handler.Logout)
 
 		v1.GET("/getinfo", handler.GetInfo)
 

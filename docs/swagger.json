@@ -562,6 +562,7 @@
             "type": "object",
             "required": [
                 "nickname",
+                "password",
                 "roleId",
                 "username"
             ],
@@ -588,6 +589,9 @@
                     "type": "string"
                 },
                 "params": {
+                    "type": "string"
+                },
+                "password": {
                     "type": "string"
                 },
                 "phone": {

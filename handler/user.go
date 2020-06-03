@@ -222,9 +222,10 @@ func UpdateUser(c *gin.Context) {
 		})
 		return
 	}
+	data.User = user
 	session := sessions.Default(c)
 	data.UpdateBy = strconv.Itoa(session.Get("userid").(int))
-	result, err := data.Update(data.RoleId)
+	result, err := data.Update(data.UserId)
 	if err != nil {
 		logrus.Debug(err)
 		c.JSON(http.StatusOK, response.Res{
