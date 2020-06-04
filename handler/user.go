@@ -207,13 +207,14 @@ func InsertUser(c *gin.Context) {
 // @Tags User
 // @Accept  application/json
 // @Product application/json
-// @Param data body model.User true "body"
+// @Param data body dao.ReqUpdateUser true "body"
 // @Success 200 {string} string	"{"code": 200, "message": "修改成功"}"
 // @Success 200 {string} string	"{"code": -1, "message": "修改失败"}"
 // @Router /api/v1/user [put]
 func UpdateUser(c *gin.Context) {
-	data := dao.User()
-	user := model.User{}
+	// data := dao.User()
+	// user := model.User{}
+	user := dao.ReqUpdateUser{}
 	if err := c.ShouldBind(&user); err != nil {
 		c.JSON(http.StatusOK, response.Res{
 			Code:  response.CodeParamErr,
@@ -222,10 +223,10 @@ func UpdateUser(c *gin.Context) {
 		})
 		return
 	}
-	data.User = user
+	// data.User = user
 	session := sessions.Default(c)
-	data.UpdateBy = strconv.Itoa(session.Get("userid").(int))
-	result, err := data.Update(data.UserId)
+	user.UpdateBy = strconv.Itoa(session.Get("userid").(int))
+	result, err := user.Update(user.UserId)
 	if err != nil {
 		logrus.Debug(err)
 		c.JSON(http.StatusOK, response.Res{

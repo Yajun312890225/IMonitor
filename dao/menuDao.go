@@ -3,6 +3,7 @@ package dao
 import (
 	"errors"
 	"iMonitor/model"
+	"iMonitor/utils"
 	"strconv"
 )
 
@@ -132,7 +133,7 @@ func (m *MenuDao) Update(id int) (update MenuDao, err error) {
 	if err = model.DB.Table("menu").First(&update, id).Error; err != nil {
 		return
 	}
-	if err = model.DB.Table("menu").Model(&update).Updates(&m).Error; err != nil {
+	if err = model.DB.Table("menu").Model(&update).Updates(utils.Struct2Map(m.Menu)).Error; err != nil {
 		return
 	}
 	err = InitPaths(m)

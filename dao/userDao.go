@@ -46,6 +46,29 @@ type ReqAddUser struct {
 	DeletedAt *time.Time `json:"deletedAt"`
 }
 
+// User 用户
+type ReqUpdateUser struct {
+	UserId    int        `gorm:"primary_key;AUTO_INCREMENT"  json:"userId"`
+	Nickname  string     `gorm:"type:varchar(128)" json:"nickname"`
+	Phone     string     `gorm:"type:varchar(11)" json:"phone" `
+	RoleId    int        `gorm:"type:int(11)" json:"roleId" `
+	Username  string     `gorm:"type:varchar(64)" json:"username" `
+	Password  string     `gorm:"type:varchar(128)" json:"password"`
+	Salt      string     `gorm:"type:varchar(255)" json:"salt"`
+	Avatar    string     `gorm:"type:varchar(255)" json:"avatar"`
+	Sex       string     `gorm:"type:varchar(255)" json:"sex"`
+	Email     string     `gorm:"type:varchar(128)" json:"email" `
+	Status    string     `gorm:"type:int(1);DEFAULT:1;" json:"status" `
+	CreateBy  string     `gorm:"type:varchar(128)" json:"createBy"`
+	UpdateBy  string     `gorm:"type:varchar(128)" json:"updateBy"`
+	Remark    string     `gorm:"type:varchar(255)" json:"remark"`
+	DataScope string     `gorm:"-" json:"dataScope"`
+	Params    string     `gorm:"-" json:"params"`
+	CreatedAt time.Time  `json:"createdAt"`
+	UpdatedAt time.Time  `json:"updatedAt"`
+	DeletedAt *time.Time `json:"deletedAt"`
+}
+
 // Login 去数据库验证登录
 func (reqLoginUser *ReqLoginUser) Login(block func(*model.User)) response.Res {
 	var user model.User
@@ -143,7 +166,7 @@ func (u *ReqAddUser) Insert() (id int, err error) {
 }
 
 //Update 修改用户
-func (u *UserDao) Update(id int) (update UserDao, err error) {
+func (u *ReqUpdateUser) Update(id int) (update UserDao, err error) {
 	if err = model.DB.Table("user").First(&update, id).Error; err != nil {
 		return
 	}

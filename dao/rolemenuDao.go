@@ -94,7 +94,7 @@ func (rm *RolemenuDao) GetPermis() ([]string, error) {
 
 	table = table.Where("role_id = ?", rm.RoleId)
 
-	table = table.Where("menu.menu_type in('F','C')")
+	table = table.Where("menu.menu_type in('F')")
 	if err := table.Find(&r).Error; err != nil {
 		return nil, err
 	}
