@@ -557,6 +557,25 @@ paths:
       summary: 获取用户
       tags:
       - User
+  /api/v1/user/profileAvatar:
+    post:
+      consumes:
+      - multipart/form-data
+      description: 获取JSON
+      parameters:
+      - description: file
+        in: formData
+        name: file
+        required: true
+        type: file
+      responses:
+        "200":
+          description: '{"code": -1, "message": "添加失败"}'
+          schema:
+            type: string
+      summary: 修改头像
+      tags:
+      - User
   /api/v1/userlist:
     get:
       description: 获取JSON

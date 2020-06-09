@@ -16,6 +16,8 @@ import (
 func InitRouter() *gin.Engine {
 	gin.SetMode(os.Getenv("GIN_MODE"))
 	r := gin.Default()
+
+	r.Static("/static", "./static")
 	// 中间件, 顺序不能改
 	r.Use(middleware.Session(os.Getenv("SESSION_SECRET")))
 	r.Use(middleware.Cors())
@@ -57,6 +59,7 @@ func InitRouter() *gin.Engine {
 		v1.POST("/user", handler.InsertUser)
 		v1.PUT("/user", handler.UpdateUser)
 		v1.DELETE("/user/:userId", handler.DeleteUser)
+		v1.POST("/user/profileAvatar", handler.InsertUserAvatar)
 
 	}
 	return r

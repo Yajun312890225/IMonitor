@@ -1,7 +1,9 @@
 package handler
 
 import (
+	"log"
 	"net/http"
+	"os"
 	"strconv"
 	"strings"
 
@@ -11,6 +13,7 @@ import (
 
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
 )
 
@@ -277,5 +280,45 @@ func DeleteUser(c *gin.Context) {
 		Code: response.CodeSuccess,
 		Data: result,
 		Msg:  "删除成功",
+	})
+}
+
+// @Summary 修改头像
+// @Description 获取JSON
+// @Tags User
+// @Accept multipart/form-data
+// @Param file formData file true "file"
+// @Success 200 {string} string	"{"code": 200, "message": "添加成功"}"
+// @Success 200 {string} string	"{"code": -1, "message": "添加失败"}"
+// @Router /api/v1/user/profileAvatar [post]
+func InsertUserAvatar(c *gin.Context) {
+	form, _ := c.MultipartForm()
+	files := form.File["file"]
+	guid := uuid.New().String()
+	filPath := "static/uploadfile/" + guid + ".jpg"
+	for _, file := range files {
+		log.Println(file.Filename)
+		// 上传文件至指定目录
+		_ = c.SaveUploadedFile(file, filPath)
+	}
+	user := dao.ReqUpdateUser{}
+	session := sessions.Default(c)
+	user.UserId = session.Get("userid").(int)
+	user.Avatar = os.Getenv("UPLOADFILE") + "/" + filPath
+	user.UpdateBy = strconv.Itoa(session.Get("userid").(int))
+	result, err := user.Update(user.UserId)
+	if err != nil {
+		logrus.Debug(err)
+		c.JSON(http.StatusOK, response.Res{
+			Code:  response.CodeParamErr,
+			Msg:   response.CodeErrMsg[response.CodeParamErr],
+			Error: err.Error(),
+		})
+		return
+	}
+	c.JSON(http.StatusOK, response.Res{
+		Code: response.CodeSuccess,
+		Data: result,
+		Msg:  "",
 	})
 }

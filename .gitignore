@@ -4,3 +4,4 @@ vendor/
 system.*
 .DS_Store
 start
+static/

@@ -457,6 +457,35 @@
                 }
             }
         },
+        "/api/v1/user/profileAvatar": {
+            "post": {
+                "description": "获取JSON",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "summary": "修改头像",
+                "parameters": [
+                    {
+                        "type": "file",
+                        "description": "file",
+                        "name": "file",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"code\": -1, \"message\": \"添加失败\"}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/user/{userId}": {
             "get": {
                 "description": "获取JSON",
