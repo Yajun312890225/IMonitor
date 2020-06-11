@@ -29,12 +29,13 @@ func GetInfo(c *gin.Context) {
 
 	var mp = make(map[string]interface{})
 	mp["roles"] = roles
-	if session.Get("rolekey").(string) == "admin" {
-		mp["permissions"] = permissions
-	} else {
-		list, _ := RoleMenu.GetPermis()
-		mp["permissions"] = list
-	}
+	// if session.Get("rolekey").(string) == "admin" {
+	// 	mp["permissions"] = permissions
+	// } else {
+
+	// }
+	list, _ := RoleMenu.GetPermis()
+	mp["permissions"] = list
 
 	c.JSON(http.StatusOK, response.Res{
 		Code: response.CodeSuccess,
