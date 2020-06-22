@@ -56,6 +56,8 @@ const (
 	CodeRoleMenuCreateErr = 40008
 	CodeRoleUpdateErr     = 40009
 	CodeRoleMenuUpdateErr = 40010
+
+	CodePingErr = 40011
 )
 
 // CodeErrMsg 服务器错误码对应错误信息
@@ -74,4 +76,5 @@ var CodeErrMsg = map[int]string{
 	CodeRoleMenuCreateErr:      "创建角色菜单错误",
 	CodeRoleUpdateErr:          "更新角色错误",
 	CodeRoleMenuUpdateErr:      "更新角色菜单错误",
+	CodePingErr:                "连接失败",
 }

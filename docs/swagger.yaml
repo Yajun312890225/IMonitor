@@ -57,6 +57,22 @@ definitions:
     - password
     - username
     type: object
+  dao.ReqPing:
+    properties:
+      host:
+        type: string
+      key1:
+        type: string
+      key2:
+        type: string
+      port:
+        type: string
+    required:
+    - host
+    - key1
+    - key2
+    - port
+    type: object
   dao.ReqUpdateUser:
     properties:
       avatar:
@@ -98,6 +114,8 @@ definitions:
       username:
         type: string
     type: object
+  dao.ServerDao:
+    $ref: '#/definitions/model.Server'
   model.Menu:
     properties:
       action:
@@ -193,6 +211,43 @@ definitions:
     - roleName
     - roleSort
     - status
+    type: object
+  model.Server:
+    properties:
+      createBy:
+        type: string
+      createdAt:
+        type: string
+      deletedAt:
+        type: string
+      host:
+        type: string
+      key1:
+        type: string
+      key2:
+        type: string
+      name:
+        type: string
+      parentId:
+        type: integer
+      port:
+        type: string
+      serverId:
+        type: integer
+      sort:
+        type: integer
+      updateBy:
+        type: string
+      updatedAt:
+        type: string
+    required:
+    - host
+    - key1
+    - key2
+    - name
+    - parentId
+    - port
+    - sort
     type: object
   response.Page:
     properties:
@@ -371,6 +426,26 @@ paths:
       summary: 根据角色名称获取菜单列表数据（左菜单使用）
       tags:
       - Menu
+  /api/v1/ping:
+    post:
+      consumes:
+      - application/json
+      description: 测试服务器的连通性
+      parameters:
+      - description: data
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/dao.ReqPing'
+      responses:
+        "200":
+          description: '{"code": -1, "message": "连接超时"}'
+          schema:
+            type: string
+      summary: 连接测试
+      tags:
+      - Server
   /api/v1/query:
     get:
       description: 查询登录状态，并返回user
@@ -485,6 +560,88 @@ paths:
       summary: 角色列表数据
       tags:
       - Role
+  /api/v1/server:
+    post:
+      consumes:
+      - application/json
+      description: 添加服务器
+      parameters:
+      - description: data
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/dao.ServerDao'
+      responses:
+        "200":
+          description: '{"code": -1, "message": "添加失败"}'
+          schema:
+            type: string
+      summary: 添加服务器
+      tags:
+      - Server
+  /api/v1/server/{serverId}:
+    delete:
+      consumes:
+      - application/json
+      description: 删除服务器
+      parameters:
+      - description: serverId
+        in: path
+        name: serverId
+        required: true
+        type: string
+      responses:
+        "200":
+          description: '{"code": -1, "message": "删除失败"}'
+          schema:
+            type: string
+      summary: 删除服务器
+      tags:
+      - Server
+    get:
+      description: 获取服务器信息
+      parameters:
+      - description: serverId
+        in: path
+        name: serverId
+        type: string
+      responses:
+        "200":
+          description: '{"code": -1, "message": "抱歉未找到相关信息"}'
+          schema:
+            type: string
+      summary: 获取服务器信息
+      tags:
+      - Server
+  /api/v1/serverlist:
+    get:
+      description: 服务器列表
+      parameters:
+      - description: host
+        in: query
+        name: host
+        type: string
+      - description: name
+        in: query
+        name: name
+        type: string
+      - description: 页条数
+        in: query
+        name: pageSize
+        type: integer
+      - description: 页码
+        in: query
+        name: pageIndex
+        type: integer
+      responses:
+        "200":
+          description: '{"code": 200, "data": [...]}'
+          schema:
+            $ref: '#/definitions/response.PageResponse'
+      summary: 服务器列表
+      tags:
+      - Server
   /api/v1/user:
     post:
       consumes:

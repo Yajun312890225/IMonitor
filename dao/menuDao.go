@@ -97,12 +97,13 @@ func (m *MenuDao) GetPage() (menus []MenuDao, err error) {
 
 // Create 创建菜单
 func (m *MenuDao) Create() (id int, err error) {
-
-	var count int
-	model.DB.Table("menu").Where("path = ? AND `deleted_at` IS NULL", m.Path).Count(&count)
-	if count != 0 {
-		return 0, errors.New("接口存在")
-	}
+	// if m.MenuType == "A" {
+	// 	var count int
+	// 	model.DB.Table("menu").Where("path = ? AND `deleted_at` IS NULL", m.Path).Count(&count)
+	// 	if count != 0 {
+	// 		return 0, errors.New("接口存在")
+	// 	}
+	// }
 	m.MenuId = 0
 	result := model.DB.Table("menu").Create(&m)
 	if result.Error != nil {

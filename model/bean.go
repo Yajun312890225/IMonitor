@@ -80,19 +80,24 @@ type RoleMenu struct {
 
 // Server IM服务器
 type Server struct {
+	ServerId int    `json:"serverId" gorm:"primary_key;AUTO_INCREMENT"`
+	Host     string `json:"host" gorm:"type:varchar(128);" binding:"required"`
+	Port     string `json:"port" gorm:"type:varchar(128);" binding:"required"`
+	Name     string `json:"name" gorm:"type:varchar(128);" binding:"required"`
+	Key1     string `json:"key1" gorm:"type:varchar(128);" binding:"required"`
+	Key2     string `json:"key2" gorm:"type:varchar(128);" binding:"required"`
+	ParentId int    `json:"parentId" gorm:"type:int(11);" binding:"required"`
+	Sort     int    `json:"sort" gorm:"type:int(4);" binding:"required"`
+	CreateBy string `json:"createBy" gorm:"type:varchar(128);"`
+	UpdateBy string `json:"updateBy" gorm:"type:varchar(128);"`
+
 	Model
-	Host    string `json:"host"`
-	Port    string `json:"port"`
-	Name    string `json:"name"`
-	Key1    string `json:"key1"`
-	Key2    string `json:"key2"`
-	Manager uint   `json:"manager"`
 }
 
 // ServerCollaborator 服务器协作者
 type ServerCollaborator struct {
-	Serverid uint
-	Userid   uint
+	Serverid int `json:"serverId" gorm:"type:int(11);"`
+	UserId   int `json:"userId" gorm:"type:int(11);"`
 }
 
 //CasbinRule 权限规则

@@ -222,6 +222,37 @@
                 }
             }
         },
+        "/api/v1/ping": {
+            "post": {
+                "description": "测试服务器的连通性",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Server"
+                ],
+                "summary": "连接测试",
+                "parameters": [
+                    {
+                        "description": "data",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dao.ReqPing"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"code\": -1, \"message\": \"连接超时\"}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/query": {
             "get": {
                 "description": "查询登录状态，并返回user",
@@ -372,6 +403,132 @@
                         "type": "string",
                         "description": "rolekey",
                         "name": "rolekey",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "页条数",
+                        "name": "pageSize",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "页码",
+                        "name": "pageIndex",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"code\": 200, \"data\": [...]}",
+                        "schema": {
+                            "$ref": "#/definitions/response.PageResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/server": {
+            "post": {
+                "description": "添加服务器",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Server"
+                ],
+                "summary": "添加服务器",
+                "parameters": [
+                    {
+                        "description": "data",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dao.ServerDao"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"code\": -1, \"message\": \"添加失败\"}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/server/{serverId}": {
+            "get": {
+                "description": "获取服务器信息",
+                "tags": [
+                    "Server"
+                ],
+                "summary": "获取服务器信息",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "serverId",
+                        "name": "serverId",
+                        "in": "path"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"code\": -1, \"message\": \"抱歉未找到相关信息\"}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "删除服务器",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Server"
+                ],
+                "summary": "删除服务器",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "serverId",
+                        "name": "serverId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"code\": -1, \"message\": \"删除失败\"}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/serverlist": {
+            "get": {
+                "description": "服务器列表",
+                "tags": [
+                    "Server"
+                ],
+                "summary": "服务器列表",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "host",
+                        "name": "host",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "name",
+                        "name": "name",
                         "in": "query"
                     },
                     {
@@ -672,6 +829,29 @@
                 }
             }
         },
+        "dao.ReqPing": {
+            "type": "object",
+            "required": [
+                "host",
+                "key1",
+                "key2",
+                "port"
+            ],
+            "properties": {
+                "host": {
+                    "type": "string"
+                },
+                "key1": {
+                    "type": "string"
+                },
+                "key2": {
+                    "type": "string"
+                },
+                "port": {
+                    "type": "string"
+                }
+            }
+        },
         "dao.ReqUpdateUser": {
             "type": "object",
             "properties": {
@@ -733,6 +913,9 @@
                     "type": "string"
                 }
             }
+        },
+        "dao.ServerDao": {
+            "$ref": "#/definitions/model.Server"
         },
         "model.Menu": {
             "type": "object",
@@ -867,6 +1050,59 @@
                 },
                 "status": {
                     "type": "string"
+                },
+                "updateBy": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.Server": {
+            "type": "object",
+            "required": [
+                "host",
+                "key1",
+                "key2",
+                "name",
+                "parentId",
+                "port",
+                "sort"
+            ],
+            "properties": {
+                "createBy": {
+                    "type": "string"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "deletedAt": {
+                    "type": "string"
+                },
+                "host": {
+                    "type": "string"
+                },
+                "key1": {
+                    "type": "string"
+                },
+                "key2": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "parentId": {
+                    "type": "integer"
+                },
+                "port": {
+                    "type": "string"
+                },
+                "serverId": {
+                    "type": "integer"
+                },
+                "sort": {
+                    "type": "integer"
                 },
                 "updateBy": {
                     "type": "string"
