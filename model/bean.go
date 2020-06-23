@@ -87,16 +87,16 @@ type Server struct {
 	Key1     string `json:"key1" gorm:"type:varchar(128);" binding:"required"`
 	Key2     string `json:"key2" gorm:"type:varchar(128);" binding:"required"`
 	ParentId int    `json:"parentId" gorm:"type:int(11);" binding:"required"`
+	OrgId    string `json:"orgId" gorm:"type:varchar(128);" binding:"required"`
 	Sort     int    `json:"sort" gorm:"type:int(4);" binding:"required"`
 	CreateBy string `json:"createBy" gorm:"type:varchar(128);"`
 	UpdateBy string `json:"updateBy" gorm:"type:varchar(128);"`
-
 	Model
 }
 
 // ServerCollaborator 服务器协作者
 type ServerCollaborator struct {
-	Serverid int `json:"serverId" gorm:"type:int(11);"`
+	ServerId int `json:"serverId" gorm:"type:int(11);"`
 	UserId   int `json:"userId" gorm:"type:int(11);"`
 }
 

@@ -45,6 +45,32 @@ definitions:
     - roleId
     - username
     type: object
+  dao.ReqFetchContact:
+    properties:
+      deptId:
+        description: 父部门id，组织下的直系部门为ROOT
+        type: string
+      orgId:
+        description: 父组织id，最顶层需要用户自己输入
+        type: string
+      requestType:
+        description: 1：组织 2：部门
+        type: integer
+      serverId:
+        type: integer
+    required:
+    - serverId
+    type: object
+  dao.ReqFetchUserGroup:
+    properties:
+      serverId:
+        type: integer
+      userId:
+        type: string
+    required:
+    - serverId
+    - userId
+    type: object
   dao.ReqLoginUser:
     properties:
       password:
@@ -72,6 +98,64 @@ definitions:
     - key1
     - key2
     - port
+    type: object
+  dao.ReqQueryMsg:
+    properties:
+      chatType:
+        description: 0:单聊 ,1:群聊
+        type: integer
+      pageIndex:
+        description: 页索引 从1开始
+        type: integer
+      pageSize:
+        description: 每页容量，默认10
+        type: integer
+      query:
+        description: 搜索关键字
+        type: string
+      serverId:
+        type: integer
+      targetId:
+        description: 目标userID
+        type: string
+      type:
+        description: 消息类型，目前预留
+        type: integer
+      userId:
+        description: 本人userID
+        type: string
+    required:
+    - serverId
+    - targetId
+    - userId
+    type: object
+  dao.ReqSearchUser:
+    properties:
+      keyword:
+        description: 模糊查询
+        type: string
+      serverId:
+        type: integer
+    required:
+    - keyword
+    - serverId
+    type: object
+  dao.ReqUpdateServer:
+    properties:
+      key1:
+        type: string
+      key2:
+        type: string
+      name:
+        type: string
+      orgId:
+        type: string
+      serverId:
+        type: integer
+      sort:
+        type: integer
+    required:
+    - serverId
     type: object
   dao.ReqUpdateUser:
     properties:
@@ -228,6 +312,8 @@ definitions:
         type: string
       name:
         type: string
+      orgId:
+        type: string
       parentId:
         type: integer
       port:
@@ -245,6 +331,7 @@ definitions:
     - key1
     - key2
     - name
+    - orgId
     - parentId
     - port
     - sort
@@ -286,6 +373,66 @@ info:
   contact: {}
   license: {}
 paths:
+  /api/v1/fetchContact:
+    post:
+      consumes:
+      - application/json
+      description: 获取通讯录树
+      parameters:
+      - description: data
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/dao.ReqFetchContact'
+      responses:
+        "200":
+          description: '{"code": -1, "message": "获取失败"}'
+          schema:
+            type: string
+      summary: 获取通讯录树
+      tags:
+      - Server
+  /api/v1/fetchMsgRecord:
+    post:
+      consumes:
+      - application/json
+      description: 查找聊天记录
+      parameters:
+      - description: data
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/dao.ReqQueryMsg'
+      responses:
+        "200":
+          description: '{"code": -1, "message": "获取失败"}'
+          schema:
+            type: string
+      summary: 查找聊天记录
+      tags:
+      - Server
+  /api/v1/fetchUserGroup:
+    post:
+      consumes:
+      - application/json
+      description: 查找用户群组
+      parameters:
+      - description: data
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/dao.ReqFetchUserGroup'
+      responses:
+        "200":
+          description: '{"code": -1, "message": "获取失败"}'
+          schema:
+            type: string
+      summary: 查找用户群组
+      tags:
+      - Server
   /api/v1/getinfo:
     get:
       description: 获取JSON
@@ -560,6 +707,26 @@ paths:
       summary: 角色列表数据
       tags:
       - Role
+  /api/v1/searchUser:
+    post:
+      consumes:
+      - application/json
+      description: 查找用户
+      parameters:
+      - description: data
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/dao.ReqSearchUser'
+      responses:
+        "200":
+          description: '{"code": -1, "message": "获取失败"}'
+          schema:
+            type: string
+      summary: 查找用户
+      tags:
+      - Server
   /api/v1/server:
     post:
       consumes:
@@ -578,6 +745,25 @@ paths:
           schema:
             type: string
       summary: 添加服务器
+      tags:
+      - Server
+    put:
+      consumes:
+      - application/json
+      description: 修改服务器信息
+      parameters:
+      - description: body
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/dao.ReqUpdateServer'
+      responses:
+        "200":
+          description: '{"code": -1, "message": "修改失败"}'
+          schema:
+            type: string
+      summary: 修改服务器信息
       tags:
       - Server
   /api/v1/server/{serverId}:
@@ -626,6 +812,10 @@ paths:
         in: query
         name: name
         type: string
+      - description: parentId
+        in: query
+        name: parentId
+        type: integer
       - description: 页条数
         in: query
         name: pageSize

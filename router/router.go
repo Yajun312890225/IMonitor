@@ -62,10 +62,16 @@ func InitRouter() *gin.Engine {
 		v1.POST("/user/profileAvatar", handler.InsertUserAvatar)
 
 		v1.GET("/serverlist", handler.GetServerList)
-		v1.GET("/server/:serverId", handler.GetServer)
 		v1.POST("/ping", handler.Ping)
 		v1.POST("/server", handler.AddServer)
+
+		v1.GET("/server/:serverId", handler.GetServer)
 		v1.DELETE("/server/:serverId", handler.DeleteServer)
+		v1.PUT("/server", handler.UpdateServer)
+		v1.POST("/fetchContact", handler.FetchContact)
+		v1.POST("/searchUser", handler.SearchUser)
+		v1.POST("/fetchUserGroup", handler.FetchUserGroup)
+		v1.POST("/fetchMsgRecord", handler.FetchMsgRecord)
 
 	}
 	return r

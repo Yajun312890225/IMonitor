@@ -5,6 +5,99 @@
         "license": {}
     },
     "paths": {
+        "/api/v1/fetchContact": {
+            "post": {
+                "description": "获取通讯录树",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Server"
+                ],
+                "summary": "获取通讯录树",
+                "parameters": [
+                    {
+                        "description": "data",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dao.ReqFetchContact"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"code\": -1, \"message\": \"获取失败\"}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/fetchMsgRecord": {
+            "post": {
+                "description": "查找聊天记录",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Server"
+                ],
+                "summary": "查找聊天记录",
+                "parameters": [
+                    {
+                        "description": "data",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dao.ReqQueryMsg"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"code\": -1, \"message\": \"获取失败\"}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/fetchUserGroup": {
+            "post": {
+                "description": "查找用户群组",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Server"
+                ],
+                "summary": "查找用户群组",
+                "parameters": [
+                    {
+                        "description": "data",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dao.ReqFetchUserGroup"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"code\": -1, \"message\": \"获取失败\"}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/getinfo": {
             "get": {
                 "description": "获取JSON",
@@ -428,7 +521,67 @@
                 }
             }
         },
+        "/api/v1/searchUser": {
+            "post": {
+                "description": "查找用户",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Server"
+                ],
+                "summary": "查找用户",
+                "parameters": [
+                    {
+                        "description": "data",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dao.ReqSearchUser"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"code\": -1, \"message\": \"获取失败\"}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/server": {
+            "put": {
+                "description": "修改服务器信息",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Server"
+                ],
+                "summary": "修改服务器信息",
+                "parameters": [
+                    {
+                        "description": "body",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dao.ReqUpdateServer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"code\": -1, \"message\": \"修改失败\"}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
             "post": {
                 "description": "添加服务器",
                 "consumes": [
@@ -529,6 +682,12 @@
                         "type": "string",
                         "description": "name",
                         "name": "name",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "parentId",
+                        "name": "parentId",
                         "in": "query"
                     },
                     {
@@ -812,6 +971,44 @@
                 }
             }
         },
+        "dao.ReqFetchContact": {
+            "type": "object",
+            "required": [
+                "serverId"
+            ],
+            "properties": {
+                "deptId": {
+                    "description": "父部门id，组织下的直系部门为ROOT",
+                    "type": "string"
+                },
+                "orgId": {
+                    "description": "父组织id，最顶层需要用户自己输入",
+                    "type": "string"
+                },
+                "requestType": {
+                    "description": "1：组织 2：部门",
+                    "type": "integer"
+                },
+                "serverId": {
+                    "type": "integer"
+                }
+            }
+        },
+        "dao.ReqFetchUserGroup": {
+            "type": "object",
+            "required": [
+                "serverId",
+                "userId"
+            ],
+            "properties": {
+                "serverId": {
+                    "type": "integer"
+                },
+                "userId": {
+                    "type": "string"
+                }
+            }
+        },
         "dao.ReqLoginUser": {
             "type": "object",
             "required": [
@@ -849,6 +1046,89 @@
                 },
                 "port": {
                     "type": "string"
+                }
+            }
+        },
+        "dao.ReqQueryMsg": {
+            "type": "object",
+            "required": [
+                "serverId",
+                "targetId",
+                "userId"
+            ],
+            "properties": {
+                "chatType": {
+                    "description": "0:单聊 ,1:群聊",
+                    "type": "integer"
+                },
+                "pageIndex": {
+                    "description": "页索引 从1开始",
+                    "type": "integer"
+                },
+                "pageSize": {
+                    "description": "每页容量，默认10",
+                    "type": "integer"
+                },
+                "query": {
+                    "description": "搜索关键字",
+                    "type": "string"
+                },
+                "serverId": {
+                    "type": "integer"
+                },
+                "targetId": {
+                    "description": "目标userID",
+                    "type": "string"
+                },
+                "type": {
+                    "description": "消息类型，目前预留",
+                    "type": "integer"
+                },
+                "userId": {
+                    "description": "本人userID",
+                    "type": "string"
+                }
+            }
+        },
+        "dao.ReqSearchUser": {
+            "type": "object",
+            "required": [
+                "keyword",
+                "serverId"
+            ],
+            "properties": {
+                "keyword": {
+                    "description": "模糊查询",
+                    "type": "string"
+                },
+                "serverId": {
+                    "type": "integer"
+                }
+            }
+        },
+        "dao.ReqUpdateServer": {
+            "type": "object",
+            "required": [
+                "serverId"
+            ],
+            "properties": {
+                "key1": {
+                    "type": "string"
+                },
+                "key2": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "orgId": {
+                    "type": "string"
+                },
+                "serverId": {
+                    "type": "integer"
+                },
+                "sort": {
+                    "type": "integer"
                 }
             }
         },
@@ -1066,6 +1346,7 @@
                 "key1",
                 "key2",
                 "name",
+                "orgId",
                 "parentId",
                 "port",
                 "sort"
@@ -1090,6 +1371,9 @@
                     "type": "string"
                 },
                 "name": {
+                    "type": "string"
+                },
+                "orgId": {
                     "type": "string"
                 },
                 "parentId": {

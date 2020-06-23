@@ -65,6 +65,7 @@ func Ping(c *gin.Context) {
 // @Tags Server
 // @Param host query string false "host"
 // @Param name query string false "name"
+// @Param parentId query int false "parentId"
 // @Param pageSize query int false "页条数"
 // @Param pageIndex query int false "页码"
 // @Success 200 {object} response.PageResponse "{"code": 200, "data": [...]}"
@@ -73,7 +74,7 @@ func GetServerList(c *gin.Context) {
 	data := dao.Server()
 	var pageSize = 10
 	var pageIndex = 1
-
+	var parentId = 0
 	if size := c.Request.FormValue("pageSize"); size != "" {
 		pageSize, _ = strconv.Atoi(size)
 	}
@@ -81,9 +82,15 @@ func GetServerList(c *gin.Context) {
 	if index := c.Request.FormValue("pageIndex"); index != "" {
 		pageIndex, _ = strconv.Atoi(index)
 	}
+	if Id := c.Request.FormValue("parentId"); Id != "" {
+		parentId, _ = strconv.Atoi(Id)
+	}
+	session := sessions.Default(c)
+	data.CreateBy = strconv.Itoa(session.Get("userid").(int))
 
 	data.Host = c.Request.FormValue("host")
 	data.Name = c.Request.FormValue("name")
+	data.ParentId = parentId
 	result, count, err := data.GetPage(pageSize, pageIndex)
 	if err != nil {
 		logrus.Debug(err)
@@ -199,7 +206,14 @@ func GetServer(c *gin.Context) {
 	server.ServerId, _ = strconv.Atoi(c.Param("serverId"))
 	if err := server.Get(); err != nil {
 		logrus.Info(err)
+		c.JSON(http.StatusOK, response.Res{
+			Code:  response.CodeParamErr,
+			Msg:   response.CodeErrMsg[response.CodeParamErr],
+			Error: err.Error(),
+		})
+		return
 	}
+
 	url := "http://" + server.Host + ":" + server.Port + "/serviceCurrentInfo"
 	timestamp, sign := utils.GetSign(server.Key1, server.Key2)
 	header := req.Header{
@@ -209,10 +223,315 @@ func GetServer(c *gin.Context) {
 	r, err := req.Post(url, header)
 	if err != nil {
 		logrus.Error(err)
+		c.JSON(http.StatusOK, response.Res{
+			Code:  response.CodeParamErr,
+			Msg:   response.CodeErrMsg[response.CodeParamErr],
+			Error: err.Error(),
+		})
+		return
+	}
+	var dic map[string]interface{}
+	r.ToJSON(&dic)
+	dic["data"] = server
+	c.JSON(http.StatusOK, dic)
+
+}
+
+// UpdateServer 修改服务器信息
+// @Summary 修改服务器信息
+// @Description 修改服务器信息
+// @Tags Server
+// @Accept  application/json
+// @Product application/json
+// @Param data body dao.ReqUpdateServer true "body"
+// @Success 200 {string} string	"{"code": 200, "message": "修改成功"}"
+// @Success 200 {string} string	"{"code": -1, "message": "修改失败"}"
+// @Router /api/v1/server [put]
+func UpdateServer(c *gin.Context) {
+	server := dao.ReqUpdateServer{}
+	err := c.ShouldBind(&server)
+	if err != nil {
+		logrus.Info(err)
+		c.JSON(http.StatusOK, response.Res{
+			Code:  response.CodeParamErr,
+			Msg:   response.CodeErrMsg[response.CodeParamErr],
+			Error: err.Error(),
+		})
+		return
+	}
+	data := dao.Server()
+	data.ServerId = server.ServerId
+	data.Name = server.Name
+	data.Key1 = server.Key1
+	data.Key2 = server.Key2
+	data.Sort = server.Sort
+
+	session := sessions.Default(c)
+	data.UpdateBy = strconv.Itoa(session.Get("userid").(int))
+
+	result, err := data.Update(data.ServerId)
+	if err != nil {
+		logrus.Info(err)
+		c.JSON(http.StatusOK, response.Res{
+			Code:  response.CodeParamErr,
+			Msg:   response.CodeErrMsg[response.CodeParamErr],
+			Error: err.Error(),
+		})
+		return
+
 	}
 
+	c.JSON(http.StatusOK, response.Res{
+		Code: response.CodeSuccess,
+		Data: result,
+		Msg:  "",
+	})
+}
+
+// FetchContact 获取通讯录树
+// @Summary 获取通讯录树
+// @Description 获取通讯录树
+// @Tags Server
+// @Accept  application/json
+// @Product application/json
+// @Param data body dao.ReqFetchContact true "data"
+// @Success 200 {string} string	"{"code": 0, "message": "获取成功"}"
+// @Success 200 {string} string	"{"code": -1, "message": "获取失败"}"
+// @Router /api/v1/fetchContact [post]
+func FetchContact(c *gin.Context) {
+	data := dao.ReqFetchContact{}
+	err := c.ShouldBind(&data)
+	if err != nil {
+		logrus.Error(err)
+		c.JSON(http.StatusOK, response.Res{
+			Code:  response.CodeParamErr,
+			Msg:   response.CodeErrMsg[response.CodeParamErr],
+			Error: err.Error(),
+		})
+		return
+	}
+	server := dao.Server()
+	server.ServerId = data.ServerId
+	if err := server.Get(); err != nil {
+		logrus.Info(err)
+		c.JSON(http.StatusOK, response.Res{
+			Code:  response.CodeParamErr,
+			Msg:   response.CodeErrMsg[response.CodeParamErr],
+			Error: err.Error(),
+		})
+		return
+	}
+
+	if data.OrgId == "" {
+		data.OrgId = server.OrgId
+	}
+	url := "http://" + server.Host + ":" + server.Port + "/contacts/fetchOrgDeptContact"
+	timestamp, sign := utils.GetSign(server.Key1, server.Key2)
+	header := req.Header{
+		"timestamp": timestamp,
+		"sign":      sign,
+	}
+	param := req.Param{
+		"pOrgID":      data.OrgId,
+		"pDeptID":     data.DeptId,
+		"requestType": data.RequestType,
+	}
+	r, err := req.Post(url, header, param)
+	if err != nil {
+		logrus.Error(err)
+		c.JSON(http.StatusOK, response.Res{
+			Code:  response.CodeParamErr,
+			Msg:   response.CodeErrMsg[response.CodeParamErr],
+			Error: err.Error(),
+		})
+		return
+	}
 	var dic map[string]interface{}
 	r.ToJSON(&dic)
 	c.JSON(http.StatusOK, dic)
+}
 
+// SearchUser 查找用户
+// @Summary 查找用户
+// @Description 查找用户
+// @Tags Server
+// @Accept  application/json
+// @Product application/json
+// @Param data body dao.ReqSearchUser true "data"
+// @Success 200 {string} string	"{"code": 0, "message": "获取成功"}"
+// @Success 200 {string} string	"{"code": -1, "message": "获取失败"}"
+// @Router /api/v1/searchUser [post]
+func SearchUser(c *gin.Context) {
+	data := dao.ReqSearchUser{}
+	err := c.ShouldBind(&data)
+	if err != nil {
+		logrus.Error(err)
+		c.JSON(http.StatusOK, response.Res{
+			Code:  response.CodeParamErr,
+			Msg:   response.CodeErrMsg[response.CodeParamErr],
+			Error: err.Error(),
+		})
+		return
+	}
+	server := dao.Server()
+	server.ServerId = data.ServerId
+	if err := server.Get(); err != nil {
+		logrus.Info(err)
+		c.JSON(http.StatusOK, response.Res{
+			Code:  response.CodeParamErr,
+			Msg:   response.CodeErrMsg[response.CodeParamErr],
+			Error: err.Error(),
+		})
+		return
+	}
+	url := "http://" + server.Host + ":" + server.Port + "/contacts/searchUser"
+	timestamp, sign := utils.GetSign(server.Key1, server.Key2)
+	header := req.Header{
+		"timestamp": timestamp,
+		"sign":      sign,
+	}
+	param := req.Param{
+		"keyword": data.Keyword,
+	}
+	r, err := req.Post(url, header, param)
+	if err != nil {
+		logrus.Error(err)
+		c.JSON(http.StatusOK, response.Res{
+			Code:  response.CodeParamErr,
+			Msg:   response.CodeErrMsg[response.CodeParamErr],
+			Error: err.Error(),
+		})
+		return
+	}
+	var dic map[string]interface{}
+	r.ToJSON(&dic)
+	c.JSON(http.StatusOK, dic)
+}
+
+// FetchUserGroup 查找用户群组
+// @Summary 查找用户群组
+// @Description 查找用户群组
+// @Tags Server
+// @Accept  application/json
+// @Product application/json
+// @Param data body dao.ReqFetchUserGroup true "data"
+// @Success 200 {string} string	"{"code": 0, "message": "获取成功"}"
+// @Success 200 {string} string	"{"code": -1, "message": "获取失败"}"
+// @Router /api/v1/fetchUserGroup [post]
+func FetchUserGroup(c *gin.Context) {
+	data := dao.ReqFetchUserGroup{}
+	err := c.ShouldBind(&data)
+	if err != nil {
+		logrus.Error(err)
+		c.JSON(http.StatusOK, response.Res{
+			Code:  response.CodeParamErr,
+			Msg:   response.CodeErrMsg[response.CodeParamErr],
+			Error: err.Error(),
+		})
+		return
+	}
+	server := dao.Server()
+	server.ServerId = data.ServerId
+	if err := server.Get(); err != nil {
+		logrus.Info(err)
+		c.JSON(http.StatusOK, response.Res{
+			Code:  response.CodeParamErr,
+			Msg:   response.CodeErrMsg[response.CodeParamErr],
+			Error: err.Error(),
+		})
+		return
+	}
+
+	url := "http://" + server.Host + ":" + server.Port + "/contacts/fetchUserGroup"
+	timestamp, sign := utils.GetSign(server.Key1, server.Key2)
+	header := req.Header{
+		"timestamp": timestamp,
+		"sign":      sign,
+	}
+	param := req.Param{
+		"userID": data.UserId,
+	}
+	r, err := req.Post(url, header, param)
+	if err != nil {
+		logrus.Error(err)
+		c.JSON(http.StatusOK, response.Res{
+			Code:  response.CodeParamErr,
+			Msg:   response.CodeErrMsg[response.CodeParamErr],
+			Error: err.Error(),
+		})
+		return
+	}
+	var dic map[string]interface{}
+	r.ToJSON(&dic)
+	c.JSON(http.StatusOK, dic)
+}
+
+// FetchMsgRecord 查找聊天记录
+// @Summary 查找聊天记录
+// @Description 查找聊天记录
+// @Tags Server
+// @Accept  application/json
+// @Product application/json
+// @Param data body dao.ReqQueryMsg true "data"
+// @Success 200 {string} string	"{"code": 0, "message": "获取成功"}"
+// @Success 200 {string} string	"{"code": -1, "message": "获取失败"}"
+// @Router /api/v1/fetchMsgRecord [post]
+func FetchMsgRecord(c *gin.Context) {
+	data := dao.ReqQueryMsg{}
+	err := c.ShouldBind(&data)
+	if err != nil {
+		logrus.Error(err)
+		c.JSON(http.StatusOK, response.Res{
+			Code:  response.CodeParamErr,
+			Msg:   response.CodeErrMsg[response.CodeParamErr],
+			Error: err.Error(),
+		})
+		return
+	}
+	server := dao.Server()
+	server.ServerId = data.ServerId
+	if err := server.Get(); err != nil {
+		logrus.Info(err)
+		c.JSON(http.StatusOK, response.Res{
+			Code:  response.CodeParamErr,
+			Msg:   response.CodeErrMsg[response.CodeParamErr],
+			Error: err.Error(),
+		})
+		return
+	}
+
+	if data.PageSize == 0 {
+		data.PageSize = 10
+	}
+	if data.PageIndex == 0 {
+		data.PageIndex = 1
+	}
+	url := "http://" + server.Host + ":" + server.Port + "/contacts/fetchMsgRecord"
+	timestamp, sign := utils.GetSign(server.Key1, server.Key2)
+	header := req.Header{
+		"timestamp": timestamp,
+		"sign":      sign,
+	}
+	param := req.Param{
+		"userID":    data.UserId,
+		"targetID":  data.TargetId,
+		"pageSize":  data.PageSize,
+		"pageIndex": data.PageIndex,
+		"chatType":  data.ChatType,
+		"type":      data.Type,
+		"query":     data.Query,
+	}
+	r, err := req.Post(url, header, param)
+	if err != nil {
+		logrus.Error(err)
+		c.JSON(http.StatusOK, response.Res{
+			Code:  response.CodeParamErr,
+			Msg:   response.CodeErrMsg[response.CodeParamErr],
+			Error: err.Error(),
+		})
+		return
+	}
+	var dic map[string]interface{}
+	r.ToJSON(&dic)
+	c.JSON(http.StatusOK, dic)
 }
