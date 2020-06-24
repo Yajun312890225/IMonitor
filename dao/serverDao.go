@@ -117,11 +117,11 @@ func (s *ServerDao) Update(serverId int) (update ServerDao, err error) {
 }
 
 //校验是否有权限
-func (s *ServerDao) CheckPermission(serverId, userId int) bool {
+func (s *ServerDao) CheckPermission(serverId, userId int) (bool, int) {
 	var count int
 	model.DB.Select("server.*").Table("server").Joins("LEFT JOIN server_collaborator on server.server_id = server_collaborator.server_id").Where("server.server_id = ?", serverId).Where(" server_collaborator.user_id = ? OR server.create_by = ?", userId, userId).Count(&count)
 	if count == 0 {
-		return false
+		return false, serverId
 	}
-	return true
+	return true, 0
 }

@@ -45,6 +45,18 @@ definitions:
     - roleId
     - username
     type: object
+  dao.ReqCreateCollaborator:
+    properties:
+      serverId:
+        description: 当前服务器ID
+        type: integer
+      username:
+        description: 协作者名字
+        type: string
+    required:
+    - serverId
+    - username
+    type: object
   dao.ReqFetchContact:
     properties:
       deptId:
@@ -373,6 +385,26 @@ info:
   contact: {}
   license: {}
 paths:
+  /api/v1/createcollaborator:
+    post:
+      consumes:
+      - application/json
+      description: 添加协作者
+      parameters:
+      - description: data
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/dao.ReqCreateCollaborator'
+      responses:
+        "200":
+          description: '{"code": -1, "message": "获取失败"}'
+          schema:
+            type: string
+      summary: 添加协作者
+      tags:
+      - Server
   /api/v1/fetchContact:
     post:
       consumes:
@@ -711,7 +743,7 @@ paths:
     post:
       consumes:
       - application/json
-      description: 查找用户
+      description: 查找用户,此接口查找的用户是IM的用户
       parameters:
       - description: data
         in: body

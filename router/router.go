@@ -65,13 +65,19 @@ func InitRouter() *gin.Engine {
 		v1.POST("/ping", handler.Ping)
 		v1.POST("/server", handler.AddServer)
 
+		//获取服务器信息和删除服务器的权限校验放在了里面
 		v1.GET("/server/:serverId", handler.GetServer)
 		v1.DELETE("/server/:serverId", handler.DeleteServer)
-		v1.PUT("/server", handler.UpdateServer)
-		v1.POST("/fetchContact", handler.FetchContact)
-		v1.POST("/searchUser", handler.SearchUser)
-		v1.POST("/fetchUserGroup", handler.FetchUserGroup)
-		v1.POST("/fetchMsgRecord", handler.FetchMsgRecord)
+		server := v1.Group("")
+		{
+			server.Use(middleware.CheckPermission())
+			server.PUT("/server", handler.UpdateServer)
+			server.POST("/fetchContact", handler.FetchContact)
+			server.POST("/searchUser", handler.SearchUser)
+			server.POST("/fetchUserGroup", handler.FetchUserGroup)
+			server.POST("/fetchMsgRecord", handler.FetchMsgRecord)
+			server.POST("/createcollaborator", handler.CreateCollaborator)
+		}
 
 	}
 	return r

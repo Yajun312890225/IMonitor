@@ -100,6 +100,14 @@ func (*UserDao) GetUserByID(id interface{}) (model.User, error) {
 	return uesr, result.Error
 }
 
+// GetUserByName 通过Username获取用户
+func (u *UserDao) GetUserByName(username string) (user UserDao, err error) {
+	if err = model.DB.Table("user").Where("username = ?", username).First(&user).Error; err != nil {
+		return
+	}
+	return
+}
+
 // GetPage 获取用户列表
 func (u *UserDao) GetPage(pageSize int, pageIndex int) ([]UserDao, int, error) {
 	var doc []UserDao

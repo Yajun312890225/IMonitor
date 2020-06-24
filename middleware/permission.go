@@ -2,14 +2,17 @@ package middleware
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/gin-contrib/sessions"
 
+	"iMonitor/dao"
 	"iMonitor/model"
 	"iMonitor/pkg/casbin"
 	"iMonitor/response"
 
 	"github.com/gin-gonic/gin"
+	"github.com/gin-gonic/gin/binding"
 )
 
 //AuthCheckRole 权限检查中间件
@@ -41,5 +44,36 @@ func AuthCheckRole() gin.HandlerFunc {
 				}
 			}
 		}
+	}
+}
+
+func CheckPermission() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		type PreMission struct {
+			ServerId int `json:"serverId" binding:"required"`
+		}
+		data := PreMission{}
+		if err := c.ShouldBindBodyWith(&data, binding.JSON); err != nil {
+			c.JSON(http.StatusOK, response.Res{
+				Code:  response.CodeParamErr,
+				Msg:   response.CodeErrMsg[response.CodeParamErr],
+				Error: err.Error(),
+			})
+			c.Abort()
+			return
+		}
+
+		session := sessions.Default(c)
+		dao := dao.Server()
+		if ok, serverId := dao.CheckPermission(data.ServerId, session.Get("userid").(int)); ok == false {
+			err := "没有服务器ID:" + strconv.Itoa(serverId) + "的权限"
+			c.JSON(http.StatusUnauthorized, gin.H{
+				"code": response.CodeAccessionNotPermission,
+				"msg":  err,
+			})
+			c.Abort()
+			return
+		}
+		c.Next()
 	}
 }

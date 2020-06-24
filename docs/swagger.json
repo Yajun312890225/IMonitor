@@ -5,6 +5,37 @@
         "license": {}
     },
     "paths": {
+        "/api/v1/createcollaborator": {
+            "post": {
+                "description": "添加协作者",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Server"
+                ],
+                "summary": "添加协作者",
+                "parameters": [
+                    {
+                        "description": "data",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dao.ReqCreateCollaborator"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"code\": -1, \"message\": \"获取失败\"}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/fetchContact": {
             "post": {
                 "description": "获取通讯录树",
@@ -523,7 +554,7 @@
         },
         "/api/v1/searchUser": {
             "post": {
-                "description": "查找用户",
+                "description": "查找用户,此接口查找的用户是IM的用户",
                 "consumes": [
                     "application/json"
                 ],
@@ -967,6 +998,23 @@
                     "type": "integer"
                 },
                 "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "dao.ReqCreateCollaborator": {
+            "type": "object",
+            "required": [
+                "serverId",
+                "username"
+            ],
+            "properties": {
+                "serverId": {
+                    "description": "当前服务器ID",
+                    "type": "integer"
+                },
+                "username": {
+                    "description": "协作者名字",
                     "type": "string"
                 }
             }

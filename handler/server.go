@@ -11,6 +11,7 @@ import (
 
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
+	"github.com/gin-gonic/gin/binding"
 	"github.com/imroc/req"
 	"github.com/sirupsen/logrus"
 )
@@ -163,7 +164,7 @@ func AddServer(c *gin.Context) {
 // @Router /api/v1/server/{serverId} [delete]
 func DeleteServer(c *gin.Context) {
 	data := dao.Server()
-	roleIds := func(keys string) (IDS []int) {
+	serverId := func(keys string) (IDS []int) {
 		ids := strings.Split(keys, ",")
 		for i := 0; i < len(ids); i++ {
 			ID, _ := strconv.Atoi(ids[i])
@@ -174,9 +175,20 @@ func DeleteServer(c *gin.Context) {
 	}(c.Param("serverId"))
 
 	session := sessions.Default(c)
+
+	for _, Id := range serverId {
+		if ok, serverId := data.CheckPermission(Id, session.Get("userid").(int)); ok == false {
+			err := "没有服务器ID:" + strconv.Itoa(serverId) + "的权限"
+			c.JSON(http.StatusUnauthorized, gin.H{
+				"code": response.CodeAccessionNotPermission,
+				"msg":  err,
+			})
+			return
+		}
+	}
 	data.UpdateBy = strconv.Itoa(session.Get("userid").(int))
 
-	err := data.BatchDelete(roleIds)
+	err := data.BatchDelete(serverId)
 	if err != nil {
 		c.JSON(http.StatusOK, response.Res{
 			Code:  response.CodeParamErr,
@@ -204,6 +216,16 @@ func DeleteServer(c *gin.Context) {
 func GetServer(c *gin.Context) {
 	server := dao.Server()
 	server.ServerId, _ = strconv.Atoi(c.Param("serverId"))
+	session := sessions.Default(c)
+	if ok, serverId := server.CheckPermission(server.ServerId, session.Get("userid").(int)); ok == false {
+		err := "没有服务器ID:" + strconv.Itoa(serverId) + "的权限"
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"code": response.CodeAccessionNotPermission,
+			"msg":  err,
+		})
+		return
+	}
+
 	if err := server.Get(); err != nil {
 		logrus.Info(err)
 		c.JSON(http.StatusOK, response.Res{
@@ -249,7 +271,7 @@ func GetServer(c *gin.Context) {
 // @Router /api/v1/server [put]
 func UpdateServer(c *gin.Context) {
 	server := dao.ReqUpdateServer{}
-	err := c.ShouldBind(&server)
+	err := c.ShouldBindBodyWith(&server, binding.JSON)
 	if err != nil {
 		logrus.Info(err)
 		c.JSON(http.StatusOK, response.Res{
@@ -300,7 +322,7 @@ func UpdateServer(c *gin.Context) {
 // @Router /api/v1/fetchContact [post]
 func FetchContact(c *gin.Context) {
 	data := dao.ReqFetchContact{}
-	err := c.ShouldBind(&data)
+	err := c.ShouldBindBodyWith(&data, binding.JSON)
 	if err != nil {
 		logrus.Error(err)
 		c.JSON(http.StatusOK, response.Res{
@@ -353,7 +375,7 @@ func FetchContact(c *gin.Context) {
 
 // SearchUser 查找用户
 // @Summary 查找用户
-// @Description 查找用户
+// @Description 查找用户,此接口查找的用户是IM的用户
 // @Tags Server
 // @Accept  application/json
 // @Product application/json
@@ -363,7 +385,7 @@ func FetchContact(c *gin.Context) {
 // @Router /api/v1/searchUser [post]
 func SearchUser(c *gin.Context) {
 	data := dao.ReqSearchUser{}
-	err := c.ShouldBind(&data)
+	err := c.ShouldBindBodyWith(&data, binding.JSON)
 	if err != nil {
 		logrus.Error(err)
 		c.JSON(http.StatusOK, response.Res{
@@ -420,7 +442,7 @@ func SearchUser(c *gin.Context) {
 // @Router /api/v1/fetchUserGroup [post]
 func FetchUserGroup(c *gin.Context) {
 	data := dao.ReqFetchUserGroup{}
-	err := c.ShouldBind(&data)
+	err := c.ShouldBindBodyWith(&data, binding.JSON)
 	if err != nil {
 		logrus.Error(err)
 		c.JSON(http.StatusOK, response.Res{
@@ -478,7 +500,7 @@ func FetchUserGroup(c *gin.Context) {
 // @Router /api/v1/fetchMsgRecord [post]
 func FetchMsgRecord(c *gin.Context) {
 	data := dao.ReqQueryMsg{}
-	err := c.ShouldBind(&data)
+	err := c.ShouldBindBodyWith(&data, binding.JSON)
 	if err != nil {
 		logrus.Error(err)
 		c.JSON(http.StatusOK, response.Res{
@@ -534,4 +556,53 @@ func FetchMsgRecord(c *gin.Context) {
 	var dic map[string]interface{}
 	r.ToJSON(&dic)
 	c.JSON(http.StatusOK, dic)
+}
+
+// CreateCollaborator 添加协作者
+// @Summary 添加协作者
+// @Description 添加协作者
+// @Tags Server
+// @Accept  application/json
+// @Product applicatio/json
+// @Param data body dao.ReqCreateCollaborator true "data"
+// @Success 200 {string} string	"{"code": 0, "message": "获取成功"}"
+// @Success 200 {string} string	"{"code": -1, "message": "获取失败"}"
+// @Router /api/v1/createcollaborator [post]
+func CreateCollaborator(c *gin.Context) {
+	data := dao.ReqCreateCollaborator{}
+	err := c.ShouldBindBodyWith(&data, binding.JSON)
+	if err != nil {
+		logrus.Error(err)
+		c.JSON(http.StatusOK, response.Res{
+			Code:  response.CodeParamErr,
+			Msg:   response.CodeErrMsg[response.CodeParamErr],
+			Error: err.Error(),
+		})
+		return
+	}
+	user := dao.User()
+	u, err := user.GetUserByName(data.Username)
+	if err != nil {
+		c.JSON(http.StatusOK, response.Res{
+			Code:  response.CodeParamErr,
+			Msg:   response.CodeErrMsg[response.CodeParamErr],
+			Error: err.Error(),
+		})
+		return
+	}
+	sc := dao.ServerCollaborator()
+	sc.ServerId = data.ServerId
+	sc.UserId = u.UserId
+	if err := sc.AddCollaborator(); err != nil {
+		logrus.Error(err)
+		c.JSON(http.StatusOK, response.Res{
+			Code:  response.CodeDBError,
+			Msg:   response.CodeErrMsg[response.CodeDBError],
+			Error: err.Error(),
+		})
+		return
+	}
+	c.JSON(http.StatusOK, response.Res{
+		Code: response.CodeSuccess,
+	})
 }
