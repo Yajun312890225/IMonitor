@@ -5,6 +5,23 @@
         "license": {}
     },
     "paths": {
+        "/api/v1/alluser": {
+            "get": {
+                "description": "获取所有用户",
+                "tags": [
+                    "User"
+                ],
+                "summary": "获取所有用户",
+                "responses": {
+                    "200": {
+                        "description": "{\"code\": -1, \"message\": \"抱歉未找到相关信息\"}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/createcollaborator": {
             "post": {
                 "description": "添加协作者",
@@ -1046,7 +1063,10 @@
                 },
                 "username": {
                     "description": "协作者名字",
-                    "type": "string"
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
                 }
             }
         },

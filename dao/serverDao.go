@@ -125,3 +125,13 @@ func (s *ServerDao) CheckPermission(serverId, userId int) (bool, int) {
 	}
 	return true, 0
 }
+
+// 只有服务器的创作者才可以删除服务器
+func (s *ServerDao) CheckOwner(serverId, userId int) (bool ,int){
+	var count int
+	model.DB.Select("server.*").Table("server").Where("server_id = ? AND create_by = ?", serverId, userId).Count(&count)
+	if count == 0 {
+		return false, serverId
+	}
+	return true, 0
+}

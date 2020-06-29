@@ -56,6 +56,7 @@ func InitRouter() *gin.Engine {
 
 		v1.GET("/userlist", handler.GetUserList)
 		v1.GET("/user/:userId", handler.GetUser)
+		v1.GET("/alluser", handler.GetAllUser)
 		v1.POST("/user", handler.InsertUser)
 		v1.PUT("/user", handler.UpdateUser)
 		v1.DELETE("/user/:userId", handler.DeleteUser)
@@ -77,6 +78,7 @@ func InitRouter() *gin.Engine {
 			server.POST("/fetchUserGroup", handler.FetchUserGroup)
 			server.POST("/fetchMsgRecord", handler.FetchMsgRecord)
 			server.POST("/createcollaborator", handler.CreateCollaborator)
+			server.DELETE("/removecollaborator", handler.RemoveCollaborator)
 		}
 
 	}

@@ -101,11 +101,29 @@ func (*UserDao) GetUserByID(id interface{}) (model.User, error) {
 }
 
 // GetUserByName 通过Username获取用户
-func (u *UserDao) GetUserByName(username string) (user UserDao, err error) {
-	if err = model.DB.Table("user").Where("username = ?", username).First(&user).Error; err != nil {
+func (u *UserDao) GetUserByName(username []string) (userId []int, err error) {
+	users := []UserDao{}
+	if err = model.DB.Table("user").Where("username IN (?)", username).Find(&users).Error; err != nil {
 		return
 	}
+	userId = func(users []UserDao) []int {
+		userIds := make([]int, 0)
+		for _, v := range users {
+			userIds = append(userIds, v.UserId)
+		}
+		return userIds
+	}(users)
 	return
+}
+
+// 获取所有用户数据
+func (u *UserDao) GetAllUser() ([]UserDao, error) {
+	var doc []UserDao
+	table := model.DB.Select("user.*").Table("user")
+	if err := table.Find(&doc).Error; err != nil {
+		return nil, err
+	}
+	return doc, nil
 }
 
 // GetPage 获取用户列表

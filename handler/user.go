@@ -322,3 +322,29 @@ func InsertUserAvatar(c *gin.Context) {
 		Msg:  "",
 	})
 }
+
+// GetAllUser 获取所有用户
+// @Summary 获取所有用户
+// @Description 获取所有用户
+// @Tags User
+// @Success 200 {string} string "{"code": 200, "data": [...]}"
+// @Success 200 {string} string "{"code": -1, "message": "抱歉未找到相关信息"}"
+// @Router /api/v1/alluser [get]
+func GetAllUser(c *gin.Context) {
+	data := dao.User()
+	result, err := data.GetAllUser()
+	if err != nil {
+		logrus.Debug(err)
+		c.JSON(http.StatusOK, response.Res{
+			Code:  response.CodeParamErr,
+			Msg:   response.CodeErrMsg[response.CodeParamErr],
+			Error: err.Error(),
+		})
+		return
+	}
+	c.JSON(http.StatusOK, response.Res{
+		Code: response.CodeSuccess,
+		Data: result,
+		Msg:  "",
+	})
+}

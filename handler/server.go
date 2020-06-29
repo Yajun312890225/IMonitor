@@ -177,7 +177,7 @@ func DeleteServer(c *gin.Context) {
 	session := sessions.Default(c)
 
 	for _, Id := range serverId {
-		if ok, serverId := data.CheckPermission(Id, session.Get("userid").(int)); ok == false {
+		if ok, serverId := data.CheckOwner(Id, session.Get("userid").(int)); ok == false {
 			err := "没有服务器ID:" + strconv.Itoa(serverId) + "的权限"
 			c.JSON(http.StatusUnauthorized, gin.H{
 				"code": response.CodeAccessionNotPermission,
@@ -593,6 +593,17 @@ func CreateCollaborator(c *gin.Context) {
 		})
 		return
 	}
+	server := dao.Server()
+	session := sessions.Default(c)
+	if ok, serverId := server.CheckOwner(data.ServerId, session.Get("userid").(int)); ok == false {
+		err := "没有服务器ID:" + strconv.Itoa(serverId) + "的权限"
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"code": response.CodeAccessionNotPermission,
+			"msg":  err,
+		})
+		return
+	}
+
 	user := dao.User()
 	u, err := user.GetUserByName(data.Username)
 	if err != nil {
@@ -604,9 +615,7 @@ func CreateCollaborator(c *gin.Context) {
 		return
 	}
 	sc := dao.ServerCollaborator()
-	sc.ServerId = data.ServerId
-	sc.UserId = u.UserId
-	if err := sc.AddCollaborator(); err != nil {
+	if err := sc.AddCollaborator(data.ServerId, u); err != nil {
 		logrus.Error(err)
 		c.JSON(http.StatusOK, response.Res{
 			Code:  response.CodeAddCollaboratorErr,
@@ -631,5 +640,50 @@ func CreateCollaborator(c *gin.Context) {
 // @Success 200 {string} string	"{"code": -1, "message": "移除失败"}"
 // @Router /api/v1/removecollaborator [delete]
 func RemoveCollaborator(c *gin.Context) {
+	data := dao.ReqCollaborator{}
+	err := c.ShouldBindBodyWith(&data, binding.JSON)
+	if err != nil {
+		logrus.Error(err)
+		c.JSON(http.StatusOK, response.Res{
+			Code:  response.CodeParamErr,
+			Msg:   response.CodeErrMsg[response.CodeParamErr],
+			Error: err.Error(),
+		})
+		return
+	}
+	server := dao.Server()
+	session := sessions.Default(c)
+	if ok, serverId := server.CheckOwner(data.ServerId, session.Get("userid").(int)); ok == false {
+		err := "没有服务器ID:" + strconv.Itoa(serverId) + "的权限"
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"code": response.CodeAccessionNotPermission,
+			"msg":  err,
+		})
+		return
+	}
 
+	user := dao.User()
+	u, err := user.GetUserByName(data.Username)
+	if err != nil {
+		c.JSON(http.StatusOK, response.Res{
+			Code:  response.CodeUserNotFound,
+			Msg:   response.CodeErrMsg[response.CodeUserNotFound],
+			Error: err.Error(),
+		})
+		return
+	}
+	sc := dao.ServerCollaborator()
+
+	if err := sc.DelCollaborator(data.ServerId, u); err != nil {
+		logrus.Error(err)
+		c.JSON(http.StatusOK, response.Res{
+			Code:  response.CodeDelCollaboratorErr,
+			Msg:   response.CodeErrMsg[response.CodeDelCollaboratorErr],
+			Error: err.Error(),
+		})
+		return
+	}
+	c.JSON(http.StatusOK, response.Res{
+		Code: response.CodeSuccess,
+	})
 }

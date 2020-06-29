@@ -52,7 +52,9 @@ definitions:
         type: integer
       username:
         description: 协作者名字
-        type: string
+        items:
+          type: string
+        type: array
     required:
     - serverId
     - username
@@ -385,6 +387,17 @@ info:
   contact: {}
   license: {}
 paths:
+  /api/v1/alluser:
+    get:
+      description: 获取所有用户
+      responses:
+        "200":
+          description: '{"code": -1, "message": "抱歉未找到相关信息"}'
+          schema:
+            type: string
+      summary: 获取所有用户
+      tags:
+      - User
   /api/v1/createcollaborator:
     post:
       consumes:
