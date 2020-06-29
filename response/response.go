@@ -58,6 +58,8 @@ const (
 	CodeRoleMenuUpdateErr = 40010
 
 	CodePingErr = 40011
+	//CodeAddCollaboratorErr 添加协作者失败
+	CodeAddCollaboratorErr = 40012
 )
 
 // CodeErrMsg 服务器错误码对应错误信息
@@ -77,4 +79,5 @@ var CodeErrMsg = map[int]string{
 	CodeRoleUpdateErr:          "更新角色错误",
 	CodeRoleMenuUpdateErr:      "更新角色菜单错误",
 	CodePingErr:                "连接失败",
+	CodeAddCollaboratorErr:     "添加协作者失败",
 }

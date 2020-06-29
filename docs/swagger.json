@@ -22,13 +22,13 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/dao.ReqCreateCollaborator"
+                            "$ref": "#/definitions/dao.ReqCollaborator"
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "{\"code\": -1, \"message\": \"获取失败\"}",
+                        "description": "{\"code\": -1, \"message\": \"添加失败\"}",
                         "schema": {
                             "type": "string"
                         }
@@ -389,6 +389,37 @@
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/response.Res"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/removecollaborator": {
+            "delete": {
+                "description": "移除协作者",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Server"
+                ],
+                "summary": "移除协作者",
+                "parameters": [
+                    {
+                        "description": "data",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dao.ReqCollaborator"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"code\": -1, \"message\": \"移除失败\"}",
+                        "schema": {
+                            "type": "string"
                         }
                     }
                 }
@@ -1002,7 +1033,7 @@
                 }
             }
         },
-        "dao.ReqCreateCollaborator": {
+        "dao.ReqCollaborator": {
             "type": "object",
             "required": [
                 "serverId",

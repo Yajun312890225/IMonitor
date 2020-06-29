@@ -255,6 +255,19 @@ func GetServer(c *gin.Context) {
 	var dic map[string]interface{}
 	r.ToJSON(&dic)
 	dic["data"] = server
+
+	sc := dao.ServerCollaborator()
+	col, err := sc.GetCollaborator(server.ServerId)
+	if err != nil {
+		logrus.Error(err)
+		c.JSON(http.StatusOK, response.Res{
+			Code:  response.CodeParamErr,
+			Msg:   response.CodeErrMsg[response.CodeParamErr],
+			Error: err.Error(),
+		})
+		return
+	}
+	dic["collaborator"] = col
 	c.JSON(http.StatusOK, dic)
 
 }
@@ -564,12 +577,12 @@ func FetchMsgRecord(c *gin.Context) {
 // @Tags Server
 // @Accept  application/json
 // @Product applicatio/json
-// @Param data body dao.ReqCreateCollaborator true "data"
-// @Success 200 {string} string	"{"code": 0, "message": "获取成功"}"
-// @Success 200 {string} string	"{"code": -1, "message": "获取失败"}"
+// @Param data body dao.ReqCollaborator true "data"
+// @Success 200 {string} string	"{"code": 0, "message": "添加成功"}"
+// @Success 200 {string} string	"{"code": -1, "message": "添加失败"}"
 // @Router /api/v1/createcollaborator [post]
 func CreateCollaborator(c *gin.Context) {
-	data := dao.ReqCreateCollaborator{}
+	data := dao.ReqCollaborator{}
 	err := c.ShouldBindBodyWith(&data, binding.JSON)
 	if err != nil {
 		logrus.Error(err)
@@ -584,8 +597,8 @@ func CreateCollaborator(c *gin.Context) {
 	u, err := user.GetUserByName(data.Username)
 	if err != nil {
 		c.JSON(http.StatusOK, response.Res{
-			Code:  response.CodeParamErr,
-			Msg:   response.CodeErrMsg[response.CodeParamErr],
+			Code:  response.CodeUserNotFound,
+			Msg:   response.CodeErrMsg[response.CodeUserNotFound],
 			Error: err.Error(),
 		})
 		return
@@ -596,8 +609,8 @@ func CreateCollaborator(c *gin.Context) {
 	if err := sc.AddCollaborator(); err != nil {
 		logrus.Error(err)
 		c.JSON(http.StatusOK, response.Res{
-			Code:  response.CodeDBError,
-			Msg:   response.CodeErrMsg[response.CodeDBError],
+			Code:  response.CodeAddCollaboratorErr,
+			Msg:   response.CodeErrMsg[response.CodeAddCollaboratorErr],
 			Error: err.Error(),
 		})
 		return
@@ -605,4 +618,18 @@ func CreateCollaborator(c *gin.Context) {
 	c.JSON(http.StatusOK, response.Res{
 		Code: response.CodeSuccess,
 	})
+}
+
+// RemoveCollaborator 移除协作者
+// @Summary 移除协作者
+// @Description 移除协作者
+// @Tags Server
+// @Accept  application/json
+// @Product applicatio/json
+// @Param data body dao.ReqCollaborator true "data"
+// @Success 200 {string} string	"{"code": 0, "message": "移除成功"}"
+// @Success 200 {string} string	"{"code": -1, "message": "移除失败"}"
+// @Router /api/v1/removecollaborator [delete]
+func RemoveCollaborator(c *gin.Context) {
+
 }

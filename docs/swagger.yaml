@@ -45,7 +45,7 @@ definitions:
     - roleId
     - username
     type: object
-  dao.ReqCreateCollaborator:
+  dao.ReqCollaborator:
     properties:
       serverId:
         description: 当前服务器ID
@@ -396,10 +396,10 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/dao.ReqCreateCollaborator'
+          $ref: '#/definitions/dao.ReqCollaborator'
       responses:
         "200":
-          description: '{"code": -1, "message": "获取失败"}'
+          description: '{"code": -1, "message": "添加失败"}'
           schema:
             type: string
       summary: 添加协作者
@@ -636,6 +636,26 @@ paths:
       summary: 查询登录状态，并返回user
       tags:
       - User
+  /api/v1/removecollaborator:
+    delete:
+      consumes:
+      - application/json
+      description: 移除协作者
+      parameters:
+      - description: data
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/dao.ReqCollaborator'
+      responses:
+        "200":
+          description: '{"code": -1, "message": "移除失败"}'
+          schema:
+            type: string
+      summary: 移除协作者
+      tags:
+      - Server
   /api/v1/role:
     post:
       consumes:
