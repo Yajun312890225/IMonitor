@@ -62,15 +62,18 @@ func InitRouter() *gin.Engine {
 		v1.DELETE("/user/:userId", handler.DeleteUser)
 		v1.POST("/user/profileAvatar", handler.InsertUserAvatar)
 
-		v1.GET("/serverlist", handler.GetServerList)
-		v1.POST("/ping", handler.Ping)
-		v1.POST("/server", handler.AddServer)
-
-		//获取服务器信息和删除服务器的权限校验放在了里面
-		v1.GET("/server/:serverId", handler.GetServer)
-		v1.DELETE("/server/:serverId", handler.DeleteServer)
 		server := v1.Group("")
 		{
+
+			server.GET("/serverlist", handler.GetServerList)
+			server.POST("/ping", handler.Ping)
+			server.POST("/server", handler.AddServer)
+
+			//url有参数的请求权限控制写在自己的方法里
+			server.GET("/server/:serverId", handler.GetServer)
+			server.DELETE("/server/:serverId", handler.DeleteServer)
+			server.GET("/querysync/:serverId", handler.QuerySyncOrgId)
+
 			server.Use(middleware.CheckPermission())
 			server.PUT("/server", handler.UpdateServer)
 			server.POST("/fetchContact", handler.FetchContact)
@@ -79,6 +82,8 @@ func InitRouter() *gin.Engine {
 			server.POST("/fetchMsgRecord", handler.FetchMsgRecord)
 			server.POST("/createcollaborator", handler.CreateCollaborator)
 			server.DELETE("/removecollaborator", handler.RemoveCollaborator)
+			server.POST("/syncContacts", handler.SyncContacts)
+			server.POST("/updatesync", handler.UpdateSync)
 		}
 
 	}

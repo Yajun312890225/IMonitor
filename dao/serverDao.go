@@ -46,6 +46,20 @@ type ReqQueryMsg struct {
 	Query     string `json:"query"`                       // 搜索关键字
 }
 
+type ReqSyncContacts struct {
+	ServerId int    `json:"serverId" binding:"required"`
+	OrgName  string `json:"orgName" binding:"required"`
+}
+
+type ReqUpdateSync struct {
+	ServerId    int    `json:"serverId" binding:"required"`
+	OrgName     string `json:"orgName" binding:"required"`
+	OrgUrl      string `json:"orgUrl"`
+	DeptUrl     string `json:"deptUrl"`
+	UserUrl     string `json:"userUrl"`
+	RelationUrl string `json:"relationUrl"`
+}
+
 func Server() *ServerDao {
 	return &ServerDao{}
 }
@@ -127,7 +141,7 @@ func (s *ServerDao) CheckPermission(serverId, userId int) (bool, int) {
 }
 
 // 只有服务器的创作者才可以删除服务器
-func (s *ServerDao) CheckOwner(serverId, userId int) (bool ,int){
+func (s *ServerDao) CheckOwner(serverId, userId int) (bool, int) {
 	var count int
 	model.DB.Select("server.*").Table("server").Where("server_id = ? AND create_by = ?", serverId, userId).Count(&count)
 	if count == 0 {

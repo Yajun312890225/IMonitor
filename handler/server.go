@@ -687,3 +687,194 @@ func RemoveCollaborator(c *gin.Context) {
 		Code: response.CodeSuccess,
 	})
 }
+
+// QuerySyncOrgId 获取同步服务器组织
+// @Summary 获取同步服务器组织
+// @Description 获取同步服务器组织
+// @Tags Server
+// @Param serverId path string false "serverId"
+// @Success 200 {string} string "{"code": 200, "data": [...]}"
+// @Success 200 {string} string "{"code": -1, "message": "抱歉未找到相关信息"}"
+// @Router /api/v1/querysync/{serverId} [get]
+func QuerySyncOrgId(c *gin.Context) {
+	server := dao.Server()
+	server.ServerId, _ = strconv.Atoi(c.Param("serverId"))
+	session := sessions.Default(c)
+	if ok, serverId := server.CheckPermission(server.ServerId, session.Get("userid").(int)); ok == false {
+		err := "没有服务器ID:" + strconv.Itoa(serverId) + "的权限"
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"code": response.CodeAccessionNotPermission,
+			"msg":  err,
+		})
+		return
+	}
+
+	if err := server.Get(); err != nil {
+		logrus.Info(err)
+		c.JSON(http.StatusOK, response.Res{
+			Code:  response.CodeParamErr,
+			Msg:   response.CodeErrMsg[response.CodeParamErr],
+			Error: err.Error(),
+		})
+		return
+	}
+
+	url := "http://" + server.Host + ":" + server.Port + "/contacts/syncURL"
+	timestamp, sign := utils.GetSign(server.Key1, server.Key2)
+	header := req.Header{
+		"timestamp": timestamp,
+		"sign":      sign,
+	}
+	r, err := req.Post(url, header)
+	if err != nil {
+		logrus.Error(err)
+		c.JSON(http.StatusOK, response.Res{
+			Code:  response.CodeParamErr,
+			Msg:   response.CodeErrMsg[response.CodeParamErr],
+			Error: err.Error(),
+		})
+		return
+	}
+	var dic map[string]interface{}
+	r.ToJSON(&dic)
+	c.JSON(http.StatusOK, dic)
+}
+
+// SyncContacts 从OA端同步数据
+// @Summary 从OA端同步数据
+// @Description 从OA端同步数据
+// @Tags Server
+// @Accept  application/json
+// @Product application/json
+// @Param data body dao.ReqSyncContacts true "data"
+// @Success 200 {string} string	"{"code": 0, "message": "获取成功"}"
+// @Success 200 {string} string	"{"code": -1, "message": "获取失败"}"
+// @Router /api/v1/syncContacts [post]
+func SyncContacts(c *gin.Context) {
+	data := dao.ReqSyncContacts{}
+	err := c.ShouldBindBodyWith(&data, binding.JSON)
+	if err != nil {
+		logrus.Error(err)
+		c.JSON(http.StatusOK, response.Res{
+			Code:  response.CodeParamErr,
+			Msg:   response.CodeErrMsg[response.CodeParamErr],
+			Error: err.Error(),
+		})
+		return
+	}
+
+	server := dao.Server()
+	server.ServerId = data.ServerId
+	if err := server.Get(); err != nil {
+		logrus.Info(err)
+		c.JSON(http.StatusOK, response.Res{
+			Code:  response.CodeParamErr,
+			Msg:   response.CodeErrMsg[response.CodeParamErr],
+			Error: err.Error(),
+		})
+		return
+	}
+
+	url := "http://" + server.Host + ":" + server.Port + "/syncContacts"
+	timestamp, sign := utils.GetSign(server.Key1, server.Key2)
+	header := req.Header{
+		"timestamp": timestamp,
+		"sign":      sign,
+	}
+	param := req.Param{
+		"orgId": data.OrgName,
+	}
+	r, err := req.Post(url, header, param)
+	if err != nil {
+		logrus.Error(err)
+		c.JSON(http.StatusOK, response.Res{
+			Code:  response.CodeParamErr,
+			Msg:   response.CodeErrMsg[response.CodeParamErr],
+			Error: err.Error(),
+		})
+		return
+	}
+	var dic map[string]interface{}
+	r.ToJSON(&dic)
+	if code := dic["code"].(float64); code == 0 {
+		res := dic["result"].(map[string]interface{})
+		server.OrgId = res["orgId"].(string)
+		session := sessions.Default(c)
+		server.UpdateBy = strconv.Itoa(session.Get("userid").(int))
+		_, err := server.Update(data.ServerId)
+		if err != nil {
+			logrus.Info(err)
+			c.JSON(http.StatusOK, response.Res{
+				Code:  response.CodeParamErr,
+				Msg:   response.CodeErrMsg[response.CodeParamErr],
+				Error: err.Error(),
+			})
+			return
+
+		}
+	}
+	c.JSON(http.StatusOK, dic)
+}
+
+// UpdateSync 更新同步地址（和添加共用）
+// @Summary 更新同步地址（和添加共用）
+// @Description 更新同步地址（和添加共用）
+// @Tags Server
+// @Accept  application/json
+// @Product application/json
+// @Param data body dao.ReqUpdateSync true "data"
+// @Success 200 {string} string	"{"code": 0, "message": "获取成功"}"
+// @Success 200 {string} string	"{"code": -1, "message": "获取失败"}"
+// @Router /api/v1/updatesync [post]
+func UpdateSync(c *gin.Context) {
+	data := dao.ReqUpdateSync{}
+	err := c.ShouldBindBodyWith(&data, binding.JSON)
+	if err != nil {
+		logrus.Error(err)
+		c.JSON(http.StatusOK, response.Res{
+			Code:  response.CodeParamErr,
+			Msg:   response.CodeErrMsg[response.CodeParamErr],
+			Error: err.Error(),
+		})
+		return
+	}
+
+	server := dao.Server()
+	server.ServerId = data.ServerId
+	if err := server.Get(); err != nil {
+		logrus.Info(err)
+		c.JSON(http.StatusOK, response.Res{
+			Code:  response.CodeParamErr,
+			Msg:   response.CodeErrMsg[response.CodeParamErr],
+			Error: err.Error(),
+		})
+		return
+	}
+
+	url := "http://" + server.Host + ":" + server.Port + "/contacts/configSyncURL"
+	timestamp, sign := utils.GetSign(server.Key1, server.Key2)
+	header := req.Header{
+		"timestamp": timestamp,
+		"sign":      sign,
+	}
+	param := req.Param{
+		"orgID":           data.OrgName,
+		"orgSyncUrl":      data.OrgUrl,
+		"deptSyncUrl":     data.DeptUrl,
+		"userSyncUrl":     data.UserUrl,
+		"relationSyncUrl": data.RelationUrl,
+	}
+	r, err := req.Post(url, header, param)
+	if err != nil {
+		logrus.Error(err)
+		c.JSON(http.StatusOK, response.Res{
+			Code:  response.CodeParamErr,
+			Msg:   response.CodeErrMsg[response.CodeParamErr],
+			Error: err.Error(),
+		})
+		return
+	}
+	var dic map[string]interface{}
+	r.ToJSON(&dic)
+	c.JSON(http.StatusOK, dic)
+}

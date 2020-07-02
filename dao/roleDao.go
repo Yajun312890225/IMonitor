@@ -63,7 +63,10 @@ func (r *RoleDao) Get() (err error) {
 func (r *RoleDao) GetRoleMeunId() ([]int, error) {
 	menuIds := make([]int, 0)
 	menuList := make([]MenuIdList, 0)
-	if err := model.DB.Table("role_menu").Select("role_menu.menu_id").Joins("LEFT JOIN menu on menu.menu_id=role_menu.menu_id").Where("role_id = ? ", r.RoleId).Where(" role_menu.menu_id not in(select menu.parent_id from role_menu LEFT JOIN menu on menu.menu_id=role_menu.menu_id where role_id =? )", r.RoleId).Find(&menuList).Error; err != nil {
+	// if err := model.DB.Table("role_menu").Select("role_menu.menu_id").Joins("LEFT JOIN menu on menu.menu_id=role_menu.menu_id").Where("role_id = ? ", r.RoleId).Where(" role_menu.menu_id not in(select menu.parent_id from role_menu LEFT JOIN menu on menu.menu_id=role_menu.menu_id where role_id =? )", r.RoleId).Find(&menuList).Error; err != nil {
+	// 	return nil, err
+	// }
+	if err := model.DB.Table("role_menu").Select("role_menu.menu_id").Joins("LEFT JOIN menu on menu.menu_id=role_menu.menu_id").Where("role_id = ? ", r.RoleId).Find(&menuList).Error; err != nil {
 		return nil, err
 	}
 	for i := 0; i < len(menuList); i++ {

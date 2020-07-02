@@ -154,6 +154,16 @@ definitions:
     - keyword
     - serverId
     type: object
+  dao.ReqSyncContacts:
+    properties:
+      orgName:
+        type: string
+      serverId:
+        type: integer
+    required:
+    - orgName
+    - serverId
+    type: object
   dao.ReqUpdateServer:
     properties:
       key1:
@@ -169,6 +179,24 @@ definitions:
       sort:
         type: integer
     required:
+    - serverId
+    type: object
+  dao.ReqUpdateSync:
+    properties:
+      deptUrl:
+        type: string
+      orgName:
+        type: string
+      orgUrl:
+        type: string
+      relationUrl:
+        type: string
+      serverId:
+        type: integer
+      userUrl:
+        type: string
+    required:
+    - orgName
     - serverId
     type: object
   dao.ReqUpdateUser:
@@ -649,6 +677,22 @@ paths:
       summary: 查询登录状态，并返回user
       tags:
       - User
+  /api/v1/querysync/{serverId}:
+    get:
+      description: 获取同步服务器组织
+      parameters:
+      - description: serverId
+        in: path
+        name: serverId
+        type: string
+      responses:
+        "200":
+          description: '{"code": -1, "message": "抱歉未找到相关信息"}'
+          schema:
+            type: string
+      summary: 获取同步服务器组织
+      tags:
+      - Server
   /api/v1/removecollaborator:
     delete:
       consumes:
@@ -895,6 +939,46 @@ paths:
           schema:
             $ref: '#/definitions/response.PageResponse'
       summary: 服务器列表
+      tags:
+      - Server
+  /api/v1/syncContacts:
+    post:
+      consumes:
+      - application/json
+      description: 从OA端同步数据
+      parameters:
+      - description: data
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/dao.ReqSyncContacts'
+      responses:
+        "200":
+          description: '{"code": -1, "message": "获取失败"}'
+          schema:
+            type: string
+      summary: 从OA端同步数据
+      tags:
+      - Server
+  /api/v1/updatesync:
+    post:
+      consumes:
+      - application/json
+      description: 更新同步地址（和添加共用）
+      parameters:
+      - description: data
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/dao.ReqUpdateSync'
+      responses:
+        "200":
+          description: '{"code": -1, "message": "获取失败"}'
+          schema:
+            type: string
+      summary: 更新同步地址（和添加共用）
       tags:
       - Server
   /api/v1/user:

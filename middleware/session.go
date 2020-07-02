@@ -11,7 +11,7 @@ func Session(secret string) gin.HandlerFunc {
 	store := cookie.NewStore([]byte(secret))
 	store.Options(sessions.Options{
 		HttpOnly: true,
-		MaxAge:   7 * 86400,
+		MaxAge:   3 * 3600,
 		Path:     "/",
 	})
 	return sessions.Sessions("imonitor-session", store)
