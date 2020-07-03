@@ -59,6 +59,10 @@ type ReqUpdateSync struct {
 	UserUrl     string `json:"userUrl"`
 	RelationUrl string `json:"relationUrl"`
 }
+type ReqServerInfo struct {
+	ServerId int    `json:"serverId" binding:"required"`
+	Date     string `json:"date" binding:"required"`
+}
 
 func Server() *ServerDao {
 	return &ServerDao{}

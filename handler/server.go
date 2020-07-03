@@ -6,8 +6,10 @@ import (
 	"iMonitor/response"
 	"iMonitor/utils"
 	"net/http"
+	"os"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
@@ -877,4 +879,169 @@ func UpdateSync(c *gin.Context) {
 	var dic map[string]interface{}
 	r.ToJSON(&dic)
 	c.JSON(http.StatusOK, dic)
+}
+
+// GetServiceInfo 获取服务器全天信息
+// @Summary 获取服务器全天信息
+// @Description 获取服务器全天信息
+// @Tags Server
+// @Accept  application/json
+// @Product application/json
+// @Param data body dao.ReqServerInfo true "data"
+// @Success 200 {string} string	"{"code": 0, "message": "获取成功"}"
+// @Success 200 {string} string	"{"code": -1, "message": "获取失败"}"
+// @Router /api/v1/serviceInfo [post]
+func GetServiceInfo(c *gin.Context) {
+	data := dao.ReqServerInfo{}
+	err := c.ShouldBindBodyWith(&data, binding.JSON)
+	if err != nil {
+		logrus.Error(err)
+		c.JSON(http.StatusOK, response.Res{
+			Code:  response.CodeParamErr,
+			Msg:   response.CodeErrMsg[response.CodeParamErr],
+			Error: err.Error(),
+		})
+		return
+	}
+
+	server := dao.Server()
+	server.ServerId = data.ServerId
+	if err := server.Get(); err != nil {
+		logrus.Info(err)
+		c.JSON(http.StatusOK, response.Res{
+			Code:  response.CodeParamErr,
+			Msg:   response.CodeErrMsg[response.CodeParamErr],
+			Error: err.Error(),
+		})
+		return
+	}
+
+	url := "http://" + server.Host + ":" + server.Port + "/serviceInfo"
+	timestamp, sign := utils.GetSign(server.Key1, server.Key2)
+	header := req.Header{
+		"timestamp": timestamp,
+		"sign":      sign,
+	}
+	param := req.Param{
+		"date": data.Date,
+	}
+	r, err := req.Post(url, header, param)
+	if err != nil {
+		logrus.Error(err)
+		c.JSON(http.StatusOK, response.Res{
+			Code:  response.CodeParamErr,
+			Msg:   response.CodeErrMsg[response.CodeParamErr],
+			Error: err.Error(),
+		})
+		return
+	}
+	var dic map[string]interface{}
+	r.ToJSON(&dic)
+	c.JSON(http.StatusOK, dic)
+}
+
+// UploadServerFile 上传服务器文件
+// @Summary 上传服务器文件
+// @Description 上传服务器文件
+// @Tags Server
+// @Accept multipart/form-data
+// @Param file formData file true "file"
+// @Success 200 {string} string	"{"code": 200, "message": "添加成功"}"
+// @Success 200 {string} string	"{"code": -1, "message": "添加失败"}"
+// @Router /api/v1/uploadfile [post]
+func UploadServerFile(c *gin.Context) {
+	form, _ := c.MultipartForm()
+	files := form.File["file"]
+	filPath := "static/uploadfile/server/start"
+	for _, file := range files {
+		// log.Println(file.Filename)
+		// 上传文件至指定目录
+		timeStr := time.Now().Format("20060102150405")
+		_ = os.Rename(filPath, filPath+"_bak_"+timeStr)
+		_ = c.SaveUploadedFile(file, filPath)
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"code": 0,
+	})
+}
+
+// RestartServer 重启服务器
+// @Summary 重启服务器
+// @Description 重启服务器
+// @Tags Server
+// @Accept  application/json
+// @Product application/json
+// @Param serverId path string false "serverId"
+// @Success 200 {string} string	"{"code": 0, "message": "获取成功"}"
+// @Success 200 {string} string	"{"code": -1, "message": "获取失败"}"
+// @Router /api/v1/restartserver/{serverId} [get]
+func RestartServer(c *gin.Context) {
+	server := dao.Server()
+	server.ServerId, _ = strconv.Atoi(c.Param("serverId"))
+	session := sessions.Default(c)
+	if ok, serverId := server.CheckPermission(server.ServerId, session.Get("userid").(int)); ok == false {
+		err := "没有服务器ID:" + strconv.Itoa(serverId) + "的权限"
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"code": response.CodeAccessionNotPermission,
+			"msg":  err,
+		})
+		return
+	}
+
+	if err := server.Get(); err != nil {
+		logrus.Info(err)
+		c.JSON(http.StatusOK, response.Res{
+			Code:  response.CodeParamErr,
+			Msg:   response.CodeErrMsg[response.CodeParamErr],
+			Error: err.Error(),
+		})
+		return
+	}
+
+	url := "http://" + server.Host + ":" + server.Port + "/getFile"
+	timestamp, sign := utils.GetSign(server.Key1, server.Key2)
+	header := req.Header{
+		"timestamp": timestamp,
+		"sign":      sign,
+	}
+	r, err := req.Post(url, header)
+	if err != nil {
+		logrus.Error(err)
+		c.JSON(http.StatusOK, response.Res{
+			Code:  response.CodeParamErr,
+			Msg:   response.CodeErrMsg[response.CodeParamErr],
+			Error: err.Error(),
+		})
+		return
+	}
+	if status := r.Response().StatusCode; status != http.StatusOK {
+		c.JSON(status, response.Res{
+			Code:  response.CodeParamErr,
+			Msg:   response.CodeErrMsg[response.CodeParamErr],
+			Error: err.Error(),
+		})
+		return
+	}
+
+	url = "http://" + server.Host + ":" + server.Port + "/restart"
+	_, _ = req.Post(url, header)
+
+	time.Sleep(5 * time.Second)
+
+	url = "http://" + server.Host + ":" + server.Port + "/ping"
+
+	r, err = req.Post(url, header)
+	if err != nil {
+		logrus.Error(err)
+		c.JSON(http.StatusOK, response.Res{
+			Code:  response.CodePingErr,
+			Msg:   response.CodeErrMsg[response.CodePingErr],
+			Error: err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"code": 0,
+	})
 }

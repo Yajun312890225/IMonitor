@@ -295,7 +295,7 @@ func InsertUserAvatar(c *gin.Context) {
 	form, _ := c.MultipartForm()
 	files := form.File["file"]
 	guid := uuid.New().String()
-	filPath := "static/uploadfile/" + guid + ".jpg"
+	filPath := "static/uploadfile/avator/" + guid + ".jpg"
 	for _, file := range files {
 		log.Println(file.Filename)
 		// 上传文件至指定目录

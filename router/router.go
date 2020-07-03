@@ -73,6 +73,8 @@ func InitRouter() *gin.Engine {
 			server.GET("/server/:serverId", handler.GetServer)
 			server.DELETE("/server/:serverId", handler.DeleteServer)
 			server.GET("/querysync/:serverId", handler.QuerySyncOrgId)
+			server.POST("/uploadfile", handler.UploadServerFile)
+			server.GET("/restartserver/:serverId", handler.RestartServer)
 
 			server.Use(middleware.CheckPermission())
 			server.PUT("/server", handler.UpdateServer)
@@ -84,6 +86,8 @@ func InitRouter() *gin.Engine {
 			server.DELETE("/removecollaborator", handler.RemoveCollaborator)
 			server.POST("/syncContacts", handler.SyncContacts)
 			server.POST("/updatesync", handler.UpdateSync)
+			server.POST("/serviceInfo", handler.GetServiceInfo)
+
 		}
 
 	}
