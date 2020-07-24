@@ -86,6 +86,7 @@ type Server struct {
 	Name     string `json:"name" gorm:"type:varchar(128);" binding:"required"`
 	Key1     string `json:"key1" gorm:"type:varchar(128);" binding:"required"`
 	Key2     string `json:"key2" gorm:"type:varchar(128);" binding:"required"`
+	IP       string `json:"ip" gorm:"type:varchar(128);"`
 	ParentId int    `json:"parentId" gorm:"type:int(11);" binding:"required"`
 	OrgId    string `json:"orgId" gorm:"type:varchar(128);" binding:"required"`
 	Sort     int    `json:"sort" gorm:"type:int(4);" binding:"required"`

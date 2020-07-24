@@ -39,14 +39,41 @@ func Ping(c *gin.Context) {
 		return
 	}
 	fmt.Println(data)
-	url := "http://" + data.Host + ":" + data.Port + "/ping"
+	if data.ChildHost == "" {
+		url := "http://" + data.Host + ":" + data.Port + "/ping"
+		timestamp, sign := utils.GetSign(data.Key1, data.Key2)
+
+		header := req.Header{
+			"timestamp": timestamp,
+			"sign":      sign,
+		}
+		r, err := req.Post(url, header)
+		if err != nil {
+			logrus.Error(err)
+			c.JSON(http.StatusOK, response.Res{
+				Code:  response.CodePingErr,
+				Msg:   response.CodeErrMsg[response.CodePingErr],
+				Error: err.Error(),
+			})
+			return
+		}
+		var dic map[string]interface{}
+		r.ToJSON(&dic)
+		c.JSON(http.StatusOK, dic)
+		return
+	}
+	url := "http://" + data.Host + ":" + data.Port + "/childPing"
 	timestamp, sign := utils.GetSign(data.Key1, data.Key2)
 
 	header := req.Header{
 		"timestamp": timestamp,
 		"sign":      sign,
 	}
-	r, err := req.Post(url, header)
+	param := req.Param{
+		"host": data.ChildHost,
+		"port": data.ChildPort,
+	}
+	r, err := req.Post(url, header, param)
 	if err != nil {
 		logrus.Error(err)
 		c.JSON(http.StatusOK, response.Res{
@@ -237,14 +264,67 @@ func GetServer(c *gin.Context) {
 		})
 		return
 	}
-
-	url := "http://" + server.Host + ":" + server.Port + "/serviceCurrentInfo"
-	timestamp, sign := utils.GetSign(server.Key1, server.Key2)
+	if server.ParentId == 0 {
+		url := "http://" + server.Host + ":" + server.Port + "/serviceCurrentInfo"
+		timestamp, sign := utils.GetSign(server.Key1, server.Key2)
+		header := req.Header{
+			"timestamp": timestamp,
+			"sign":      sign,
+		}
+		param := req.Param{
+			"host": server.IP,
+			"port": server.Port,
+		}
+		r, err := req.Post(url, header, param)
+		if err != nil {
+			logrus.Error(err)
+			c.JSON(http.StatusOK, response.Res{
+				Code:  response.CodeParamErr,
+				Msg:   response.CodeErrMsg[response.CodeParamErr],
+				Error: err.Error(),
+			})
+			return
+		}
+		var dic map[string]interface{}
+		r.ToJSON(&dic)
+		dic["data"] = server
+		sc := dao.ServerCollaborator()
+		col, err := sc.GetCollaborator(server.ServerId)
+		if err != nil {
+			logrus.Error(err)
+			c.JSON(http.StatusOK, response.Res{
+				Code:  response.CodeParamErr,
+				Msg:   response.CodeErrMsg[response.CodeParamErr],
+				Error: err.Error(),
+			})
+			return
+		}
+		dic["collaborator"] = col
+		c.JSON(http.StatusOK, dic)
+		return
+	}
+	parentServer := dao.Server()
+	parentServer.ServerId = server.ParentId
+	if err := parentServer.Get(); err != nil {
+		logrus.Info(err)
+		c.JSON(http.StatusOK, response.Res{
+			Code:  response.CodeParamErr,
+			Msg:   response.CodeErrMsg[response.CodeParamErr],
+			Error: err.Error(),
+		})
+		return
+	}
+	url := "http://" + parentServer.Host + ":" + parentServer.Port + "/serviceCurrentInfo"
+	timestamp, sign := utils.GetSign(parentServer.Key1, parentServer.Key2)
 	header := req.Header{
 		"timestamp": timestamp,
 		"sign":      sign,
 	}
-	r, err := req.Post(url, header)
+	param := req.Param{
+		"host": server.Host,
+		"port": server.Port,
+	}
+	r, err := req.Post(url, header, param)
 	if err != nil {
 		logrus.Error(err)
 		c.JSON(http.StatusOK, response.Res{
@@ -257,21 +337,7 @@ func GetServer(c *gin.Context) {
 	var dic map[string]interface{}
 	r.ToJSON(&dic)
 	dic["data"] = server
-
-	sc := dao.ServerCollaborator()
-	col, err := sc.GetCollaborator(server.ServerId)
-	if err != nil {
-		logrus.Error(err)
-		c.JSON(http.StatusOK, response.Res{
-			Code:  response.CodeParamErr,
-			Msg:   response.CodeErrMsg[response.CodeParamErr],
-			Error: err.Error(),
-		})
-		return
-	}
-	dic["collaborator"] = col
 	c.JSON(http.StatusOK, dic)
-
 }
 
 // UpdateServer 修改服务器信息
@@ -915,14 +981,53 @@ func GetServiceInfo(c *gin.Context) {
 		})
 		return
 	}
-
-	url := "http://" + server.Host + ":" + server.Port + "/serviceInfo"
-	timestamp, sign := utils.GetSign(server.Key1, server.Key2)
+	if server.ParentId == 0 {
+		url := "http://" + server.Host + ":" + server.Port + "/serviceInfo"
+		timestamp, sign := utils.GetSign(server.Key1, server.Key2)
+		header := req.Header{
+			"timestamp": timestamp,
+			"sign":      sign,
+		}
+		param := req.Param{
+			"host": server.IP,
+			"port": server.Port,
+			"date": data.Date,
+		}
+		r, err := req.Post(url, header, param)
+		if err != nil {
+			logrus.Error(err)
+			c.JSON(http.StatusOK, response.Res{
+				Code:  response.CodeParamErr,
+				Msg:   response.CodeErrMsg[response.CodeParamErr],
+				Error: err.Error(),
+			})
+			return
+		}
+		var dic map[string]interface{}
+		r.ToJSON(&dic)
+		c.JSON(http.StatusOK, dic)
+		return
+	}
+	parentServer := dao.Server()
+	parentServer.ServerId = server.ParentId
+	if err := parentServer.Get(); err != nil {
+		logrus.Info(err)
+		c.JSON(http.StatusOK, response.Res{
+			Code:  response.CodeParamErr,
+			Msg:   response.CodeErrMsg[response.CodeParamErr],
+			Error: err.Error(),
+		})
+		return
+	}
+	url := "http://" + parentServer.Host + ":" + parentServer.Port + "/serviceInfo"
+	timestamp, sign := utils.GetSign(parentServer.Key1, parentServer.Key2)
 	header := req.Header{
 		"timestamp": timestamp,
 		"sign":      sign,
 	}
 	param := req.Param{
+		"host": server.Host,
+		"port": server.Port,
 		"date": data.Date,
 	}
 	r, err := req.Post(url, header, param)
@@ -1022,7 +1127,7 @@ func RestartServer(c *gin.Context) {
 		})
 		return
 	}
-
+	time.Sleep(2 * time.Second)
 	url = "http://" + server.Host + ":" + server.Port + "/restart"
 	_, _ = req.Post(url, header)
 
@@ -1044,4 +1149,189 @@ func RestartServer(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"code": 0,
 	})
+}
+
+// QueryClientLog 获取客户端错误日志
+// @Summary 获取客户端错误日志
+// @Description 获取客户端错误日志
+// @Tags Server
+// @Param serverId query int false "serverId"
+// @Param query query string false "query"
+// @Param pageSize query int false "pageSize"
+// @Param pageIndex query int false "pageIndex"
+// @Success 200 {string} string	"{"code": 200, "message": "获取成功"}"
+// @Success 200 {string} string	"{"code": -1, "message": "获取成功"}"
+// @Router /api/v1/queryclientlog [get]
+func QueryClientLog(c *gin.Context) {
+
+	server := dao.Server()
+	server.ServerId, _ = strconv.Atoi(c.Request.FormValue("serverId"))
+	session := sessions.Default(c)
+	if ok, serverId := server.CheckPermission(server.ServerId, session.Get("userid").(int)); ok == false {
+		err := "没有服务器ID:" + strconv.Itoa(serverId) + "的权限"
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"code": response.CodeAccessionNotPermission,
+			"msg":  err,
+		})
+		return
+	}
+
+	if err := server.Get(); err != nil {
+		logrus.Info(err)
+		c.JSON(http.StatusOK, response.Res{
+			Code:  response.CodeParamErr,
+			Msg:   response.CodeErrMsg[response.CodeParamErr],
+			Error: err.Error(),
+		})
+		return
+	}
+
+	var pageSize = 10
+	var pageIndex = 1
+
+	if size := c.Request.FormValue("pageSize"); size != "" {
+		pageSize, _ = strconv.Atoi(size)
+	}
+
+	if index := c.Request.FormValue("pageIndex"); index != "" {
+		pageIndex, _ = strconv.Atoi(index)
+	}
+	query := c.Request.FormValue("query")
+
+	url := "http://" + server.Host + ":" + server.Port + "/queryLog"
+	timestamp, sign := utils.GetSign(server.Key1, server.Key2)
+	header := req.Header{
+		"timestamp": timestamp,
+		"sign":      sign,
+	}
+	param := req.Param{
+		"query":     query,
+		"pageSize":  pageSize,
+		"pageIndex": pageIndex,
+	}
+	r, err := req.Post(url, header, param)
+	if err != nil {
+		logrus.Error(err)
+		c.JSON(http.StatusOK, response.Res{
+			Code:  response.CodeParamErr,
+			Msg:   response.CodeErrMsg[response.CodeParamErr],
+			Error: err.Error(),
+		})
+		return
+	}
+	var dic map[string]interface{}
+	r.ToJSON(&dic)
+	c.JSON(http.StatusOK, dic)
+
+}
+
+// GetClientVersion 获取客户端SDK版本号
+// @Summary 获取客户端SDK版本号
+// @Description 获取客户端SDK版本号
+// @Tags Server
+// @Param serverId path string false "serverId"
+// @Success 200 {string} string	"{"code": 200, "message": "获取成功"}"
+// @Success 200 {string} string	"{"code": -1, "message": "获取成功"}"
+// @Router /api/v1/getClientVersion/{serverId} [get]
+func GetClientVersion(c *gin.Context) {
+	server := dao.Server()
+	server.ServerId, _ = strconv.Atoi(c.Param("serverId"))
+	session := sessions.Default(c)
+	if ok, serverId := server.CheckPermission(server.ServerId, session.Get("userid").(int)); ok == false {
+		err := "没有服务器ID:" + strconv.Itoa(serverId) + "的权限"
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"code": response.CodeAccessionNotPermission,
+			"msg":  err,
+		})
+		return
+	}
+
+	if err := server.Get(); err != nil {
+		logrus.Info(err)
+		c.JSON(http.StatusOK, response.Res{
+			Code:  response.CodeParamErr,
+			Msg:   response.CodeErrMsg[response.CodeParamErr],
+			Error: err.Error(),
+		})
+		return
+	}
+
+	url := "http://" + server.Host + ":" + server.Port + "/getVersion"
+	timestamp, sign := utils.GetSign(server.Key1, server.Key2)
+	header := req.Header{
+		"timestamp": timestamp,
+		"sign":      sign,
+	}
+	r, err := req.Post(url, header)
+	if err != nil {
+		logrus.Error(err)
+		c.JSON(http.StatusOK, response.Res{
+			Code:  response.CodeParamErr,
+			Msg:   response.CodeErrMsg[response.CodeParamErr],
+			Error: err.Error(),
+		})
+		return
+	}
+	var dic map[string]interface{}
+	r.ToJSON(&dic)
+	c.JSON(http.StatusOK, dic)
+}
+
+// UpdateVersion 更新客户端SDK版本号
+// @Summary 更新客户端SDK版本号
+// @Description 更新客户端SDK版本号
+// @Tags Server
+// @Accept  application/json
+// @Product application/json
+// @Param data body dao.ReqUpdateVersion true "data"
+// @Success 200 {string} string	"{"code": 0, "message": "获取成功"}"
+// @Success 200 {string} string	"{"code": -1, "message": "获取失败"}"
+// @Router /api/v1/updateVersion [post]
+func UpdateVersion(c *gin.Context) {
+	data := dao.ReqUpdateVersion{}
+	err := c.ShouldBindBodyWith(&data, binding.JSON)
+	if err != nil {
+		logrus.Error(err)
+		c.JSON(http.StatusOK, response.Res{
+			Code:  response.CodeParamErr,
+			Msg:   response.CodeErrMsg[response.CodeParamErr],
+			Error: err.Error(),
+		})
+		return
+	}
+
+	server := dao.Server()
+	server.ServerId = data.ServerId
+	if err := server.Get(); err != nil {
+		logrus.Info(err)
+		c.JSON(http.StatusOK, response.Res{
+			Code:  response.CodeParamErr,
+			Msg:   response.CodeErrMsg[response.CodeParamErr],
+			Error: err.Error(),
+		})
+		return
+	}
+
+	url := "http://" + server.Host + ":" + server.Port + "/updateVersion"
+	timestamp, sign := utils.GetSign(server.Key1, server.Key2)
+	header := req.Header{
+		"timestamp": timestamp,
+		"sign":      sign,
+	}
+	param := req.Param{
+		"version": data.Version,
+	}
+	r, err := req.Post(url, header, param)
+	if err != nil {
+		logrus.Error(err)
+		c.JSON(http.StatusOK, response.Res{
+			Code:  response.CodeParamErr,
+			Msg:   response.CodeErrMsg[response.CodeParamErr],
+			Error: err.Error(),
+		})
+		return
+	}
+	var dic map[string]interface{}
+	r.ToJSON(&dic)
+	c.JSON(http.StatusOK, dic)
 }

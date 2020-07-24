@@ -18,6 +18,9 @@ func InitRouter() *gin.Engine {
 	r := gin.Default()
 
 	r.Static("/static", "./static")
+	handler.Serve()
+	r.GET("/ws", handler.ServerLog) //websocket
+
 	// 中间件, 顺序不能改
 	r.Use(middleware.Session(os.Getenv("SESSION_SECRET")))
 	r.Use(middleware.Cors())
@@ -75,6 +78,8 @@ func InitRouter() *gin.Engine {
 			server.GET("/querysync/:serverId", handler.QuerySyncOrgId)
 			server.POST("/uploadfile", handler.UploadServerFile)
 			server.GET("/restartserver/:serverId", handler.RestartServer)
+			server.GET("/queryclientlog", handler.QueryClientLog)
+			server.GET("/getClientVersion/:serverId", handler.GetClientVersion)
 
 			server.Use(middleware.CheckPermission())
 			server.PUT("/server", handler.UpdateServer)
@@ -87,6 +92,7 @@ func InitRouter() *gin.Engine {
 			server.POST("/syncContacts", handler.SyncContacts)
 			server.POST("/updatesync", handler.UpdateSync)
 			server.POST("/serviceInfo", handler.GetServiceInfo)
+			server.POST("/updateVersion", handler.UpdateVersion)
 
 		}
 

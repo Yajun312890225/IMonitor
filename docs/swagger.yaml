@@ -99,6 +99,10 @@ definitions:
     type: object
   dao.ReqPing:
     properties:
+      childhost:
+        type: string
+      childport:
+        type: string
       host:
         type: string
       key1:
@@ -250,6 +254,16 @@ definitions:
       username:
         type: string
     type: object
+  dao.ReqUpdateVersion:
+    properties:
+      serverId:
+        type: integer
+      version:
+        type: string
+    required:
+    - serverId
+    - version
+    type: object
   dao.ServerDao:
     $ref: '#/definitions/model.Server'
   model.Menu:
@@ -357,6 +371,8 @@ definitions:
       deletedAt:
         type: string
       host:
+        type: string
+      ip:
         type: string
       key1:
         type: string
@@ -514,6 +530,22 @@ paths:
           schema:
             type: string
       summary: 查找用户群组
+      tags:
+      - Server
+  /api/v1/getClientVersion/{serverId}:
+    get:
+      description: 获取客户端SDK版本号
+      parameters:
+      - description: serverId
+        in: path
+        name: serverId
+        type: string
+      responses:
+        "200":
+          description: '{"code": -1, "message": "获取成功"}'
+          schema:
+            type: string
+      summary: 获取客户端SDK版本号
       tags:
       - Server
   /api/v1/getinfo:
@@ -687,6 +719,34 @@ paths:
       summary: 查询登录状态，并返回user
       tags:
       - User
+  /api/v1/queryclientlog:
+    get:
+      description: 获取客户端错误日志
+      parameters:
+      - description: serverId
+        in: query
+        name: serverId
+        type: integer
+      - description: query
+        in: query
+        name: query
+        type: string
+      - description: pageSize
+        in: query
+        name: pageSize
+        type: integer
+      - description: pageIndex
+        in: query
+        name: pageIndex
+        type: integer
+      responses:
+        "200":
+          description: '{"code": -1, "message": "获取成功"}'
+          schema:
+            type: string
+      summary: 获取客户端错误日志
+      tags:
+      - Server
   /api/v1/querysync/{serverId}:
     get:
       description: 获取同步服务器组织
@@ -1007,6 +1067,26 @@ paths:
           schema:
             type: string
       summary: 从OA端同步数据
+      tags:
+      - Server
+  /api/v1/updateVersion:
+    post:
+      consumes:
+      - application/json
+      description: 更新客户端SDK版本号
+      parameters:
+      - description: data
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/dao.ReqUpdateVersion'
+      responses:
+        "200":
+          description: '{"code": -1, "message": "获取失败"}'
+          schema:
+            type: string
+      summary: 更新客户端SDK版本号
       tags:
       - Server
   /api/v1/updatesync:

@@ -6,10 +6,12 @@ import (
 
 type ServerDao model.Server
 type ReqPing struct {
-	Host string `json:"host" binding:"required"`
-	Port string `json:"port" binding:"required"`
-	Key1 string `json:"key1" binding:"required"`
-	Key2 string `json:"key2" binding:"required"`
+	Host      string `json:"host" binding:"required"`
+	Port      string `json:"port" binding:"required"`
+	Key1      string `json:"key1" binding:"required"`
+	Key2      string `json:"key2" binding:"required"`
+	ChildHost string `json:"childhost"`
+	ChildPort string `json:"childport"`
 }
 type ReqUpdateServer struct {
 	ServerId int    `json:"serverId" binding:"required"`
@@ -63,6 +65,10 @@ type ReqServerInfo struct {
 	ServerId int    `json:"serverId" binding:"required"`
 	Date     string `json:"date" binding:"required"`
 }
+type ReqUpdateVersion struct {
+	ServerId int    `json:"serverId" binding:"required"`
+	Version  string `json:"version" binding:"required"`
+}
 
 func Server() *ServerDao {
 	return &ServerDao{}
@@ -82,7 +88,7 @@ func (s *ServerDao) GetPage(pageSize int, pageIndex int) ([]model.Server, int, e
 	if s.Name != "" {
 		table = table.Where("name = ?", s.Name)
 	}
-	if err := table.Order("sort").Offset((pageIndex - 1) * pageSize).Limit(pageSize).Find(&doc).Error; err != nil {
+	if err := table.Group("server_id").Order("sort").Offset((pageIndex - 1) * pageSize).Limit(pageSize).Find(&doc).Error; err != nil {
 		return nil, 0, err
 	}
 	var count int
