@@ -1,0 +1,34 @@
+<h1 align="center">iMonitor</h1>
+
+<div align="center">基于Gin + Casbin + Grom 的IM后台管理系统<br/></div>
+
+## 特征
+- 遵循 `RESTful API` 设计规范 & 基于接口的编程规范
+- 基于 `GIN` 框架，提供了丰富的中间件支持
+- 基于 `Gorilla/Websocket` 实现实时日志
+- 基于 `Casbin` 的 RBAC 访问控制模型
+- 基于 `Gorm` 的数据库存储
+- 基于 `Logrus` 实现了日志输出
+- 基于 `Swaggo` 自动生成 `Swagger` 文档
+- 基于 `go mod` 的依赖管理
+
+## 依赖框架
+
+- [Gin](https://gin-gonic.com/) -- The fastest full-featured web framework for Go.
+- [Gorilla/Websocket](https://pkg.go.dev/github.com/gorilla/websocket) -- Gorilla WebSocket is a Go implementation of the WebSocket protocol.
+- [GORM](http://gorm.io/) -- The fantastic ORM library for Golang
+- [Casbin](https://casbin.org/) -- An authorization library that supports access control models like ACL, RBAC, ABAC in Golang
+
+
+## 生成`swagger`文档
+
+```
+# 直接运行
+make
+# 直接编译linux
+make build
+# 基于Makefile
+make swagger
+# 使用swag命令
+swag init
+```

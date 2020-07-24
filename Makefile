@@ -1,15 +1,15 @@
 .PHONY: start build
 
-all: srun
+all: run
 
 build:
 	swag init
 	GOOS=linux GOARCH=amd64 go build ./main.go && mv main start
-run: 
-	go run main.go
-srun:
+run:
 	swag init
 	go run main.go
 clean:
 	go clean
+swagger:
+	swag init
 
